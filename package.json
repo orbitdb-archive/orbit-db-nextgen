@@ -30,6 +30,8 @@
   },
   "devDependencies": {
     "c8": "^7.13.0",
+    "assert": "^2.0.0",
+    "babel-loader": "^9.1.2",
     "cpy-cli": "^4.2.0",
     "cross-env": "^7.0.3",
     "fs-extra": "^11.1.0",
@@ -54,12 +56,14 @@
     "test:all": "npm run test:browser-multiple-tabs && npm run test",
     "test": "cross-env mocha --config test/.mocharc.json",
     "test:ci": "cross-env c8 mocha --config test/.mocharc.json",
+    "test:browser": "npm run build:tests && mocha-headless-chrome -t 360000 -f ./test/browser/index.html -a no-sandbox",
     "test:browser-multiple-tabs": "npm run build:dist && cpy dist/orbitdb.min.js ./test/browser/ --rename=orbitdb.js --flat && cpy node_modules/ipfs/dist/index.min.js ./test/browser --rename=ipfs.js --flat && mocha ./test/browser/concurrent.spec.js",
     "build": "npm run build:dist && npm run build:debug",
     "build:examples": "webpack --config conf/webpack.example.config.js",
     "build:dist": "webpack --config conf/webpack.config.js",
     "build:debug": "webpack --config conf/webpack.debug.config.js",
     "build:docs/toc": "echo 'TODO'",
+    "build:tests": "webpack --config ./conf/webpack.tests.config.js",
     "prepublishOnly": "npm run build",
     "lint": "standard --env=mocha",
     "lint:fix": "standard --fix"

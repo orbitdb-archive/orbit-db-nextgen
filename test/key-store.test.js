@@ -5,7 +5,7 @@ import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
 import KeyStore, { signMessage, verifyMessage } from '../src/key-store.js'
 import LevelStorage from '../src/storage/level.js'
-import testKeysPath from './fixtures/test-keys-path.js '
+import testKeysPath from './fixtures/test-keys-path.js'
 
 const defaultPath = './keystore'
 const keysPath = './testkeys'

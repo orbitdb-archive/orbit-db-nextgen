@@ -1,12 +1,13 @@
 import glob from 'glob'
 import webpack from 'webpack'
 import { createRequire } from 'module'
+import CopyPlugin from 'copy-webpack-plugin'
 
 export default (env, argv) => {
   const require = createRequire(import.meta.url)
+
   return {
-    // TODO: put all tests in a .js file that webpack can use as entry point
-    entry: glob.sync('./test/*.spec.js', { ignore: ['./test/replicate.spec.js'] }),
+    entry: glob.sync('./test/*.js', { ignore: [] }),
     output: {
       filename: '../test/browser/bundle.js'
     },
@@ -16,10 +17,19 @@ export default (env, argv) => {
     experiments: {
       topLevelAwait: true
     },
+    externals: {
+      fs: '{}',
+      'fs-extra': '{ copy: () => {} }',
+      rimraf: '() => {}'
+    },
     plugins: [
       new webpack.ProvidePlugin({
-        process: 'process/browser.js',
-        Buffer: ['buffer', 'Buffer']
+        process: 'process/browser.js'
+      }),
+      new CopyPlugin({
+        patterns: [
+          { from: 'test/fixtures/newtestkeys2/', to: 'test/fixtures/newtestkeys2/' }
+        ]
       })
     ],
     resolve: {
@@ -27,21 +37,8 @@ export default (env, argv) => {
         'node_modules'
       ],
       fallback: {
-        path: require.resolve('path-browserify'),
-        os: false,
-        fs: false,
-        constants: false,
-        stream: false
+        path: require.resolve('path-browserify')
       }
-    },
-    externals: {
-      fs: '{ existsSync: () => true }',
-      'fs-extra': '{ copy: () => {} }',
-      rimraf: '{ sync: () => {} }'
-    },
-    module: {
-      rules: [
-      ]
     }
   }
 }
