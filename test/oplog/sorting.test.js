@@ -9,7 +9,7 @@ describe('Sorting', () => {
       const func = (a, b) => { return 0 }
       const sortFn = Sorting.NoZeroes(func)
       const expected = 'Error: Your log\'s tiebreaker function, func, has returned zero and therefore cannot be'
-      
+
       const record1 = 1
       const record2 = 2
 
