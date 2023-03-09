@@ -115,6 +115,39 @@ describe('Database - Replication', function () {
 
     deepStrictEqual(all1, all2)
   })
+
+  it('adds an operation before db2 is instantiated', async () => {
+    let connected = false
+    const onConnected = (entry) => {
+      connected = true
+    }
+
+    await db2.drop()
+    await db2.close()
+
+    await rmrf('./orbitdb2')
+
+    await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
+
+    db2 = await Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
+
+    db2.events.on('join', onConnected)
+
+    await waitFor(() => connected, () => true)
+
+    const all1 = []
+    for await (const item of db1.log.iterator()) {
+      all1.unshift(item)
+    }
+
+    const all2 = []
+    for await (const item of db2.log.iterator()) {
+      all2.unshift(item)
+    }
+
+    deepStrictEqual(all1, all2)
+  })
+
   describe('Events', () => {
     it('emits \'update\' once when one operation is added', async () => {
       const expected = 1
