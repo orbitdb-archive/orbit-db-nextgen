@@ -5,13 +5,13 @@ import path from 'path'
 
 const valueEncoding = 'json'
 
-const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, name, accessController, directory, storage }) => {
-  const keyValueStore = await KeyValue({ OpLog, Database, ipfs, identity, address, name, accessController, directory, storage })
+const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, name, accessController, directory, storage, meta }) => {
+  const keyValueStore = await KeyValue({ OpLog, Database, ipfs, identity, address, name, accessController, directory, storage, meta })
   const { events, log } = keyValueStore
 
   const queue = new PQueue({ concurrency: 1 })
 
-  directory = path.join(directory || './orbitdb', `./${address.path}/_index/`)
+  directory = path.join(directory || './orbitdb', `./${address}/_index/`)
   const index = await LevelStorage({ path: directory, valueEncoding })
 
   let latestOplogHash
@@ -35,22 +35,16 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
 
   const get = async (key) => {
     await queue.onIdle()
-
-    try {
-      const value = await index.get(key)
-      if (value) {
-        return value
-      }
-    } catch (e) {
-      // LEVEL_NOT_FOUND (ie. key not found)
+    const value = await index.get(key)
+    if (value) {
+      return value
     }
-
     return keyValueStore.get(key)
   }
 
-  const iterator = async function * () {
+  const iterator = async function * ({ amount } = {}) {
     await queue.onIdle()
-    for await (const { key, value } of keyValueStore.iterator()) {
+    for await (const { key, value } of keyValueStore.iterator({ amount })) {
       yield { key, value }
     }
   }
@@ -58,7 +52,6 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
   const task = async () => {
     await queue.add(updateIndex(index))
   }
-  // TODO: all()
 
   const close = async () => {
     events.off('update', task)
@@ -82,7 +75,6 @@ const KeyValuePersisted = async ({ OpLog, Database, ipfs, identity, address, nam
     ...keyValueStore,
     get,
     iterator,
-    // TODO: all,
     close,
     drop
   }
