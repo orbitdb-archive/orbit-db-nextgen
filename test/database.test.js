@@ -14,10 +14,10 @@ const keysPath = './testkeys'
 describe('Database', function () {
   this.timeout(30000)
 
-  let ipfs1, ipfs2
+  let ipfs
   let keystore
   let identities
-  let testIdentity1, testIdentity2
+  let testIdentity
   let db
 
   const databaseId = 'documentstore-AAA'
@@ -25,30 +25,22 @@ describe('Database', function () {
   const accessController = {
     canAppend: async (entry) => {
       const identity1 = await identities.getIdentity(entry.identity)
-      const identity2 = await identities.getIdentity(entry.identity)
-      return identity1.id === testIdentity1.id || identity2.id === testIdentity2.id
+      return identity1.id === testIdentity.id
     }
   }
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
-    await connectPeers(ipfs1, ipfs2)
+    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
 
     await copy(testKeysPath, keysPath)
     keystore = await KeyStore({ path: keysPath })
     identities = await Identities({ keystore })
-    testIdentity1 = await identities.createIdentity({ id: 'userA' })
-    testIdentity2 = await identities.createIdentity({ id: 'userB' })
+    testIdentity = await identities.createIdentity({ id: 'userA' })
   })
 
   after(async () => {
-    if (ipfs1) {
-      await ipfs1.stop()
-    }
-
-    if (ipfs2) {
-      await ipfs2.stop()
+    if (ipfs) {
+      await ipfs.stop()
     }
 
     if (keystore) {
@@ -57,11 +49,10 @@ describe('Database', function () {
 
     await rmrf(keysPath)
     await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   beforeEach(async () => {
-    db = await Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
+    db = await Database({ OpLog, ipfs, identity: testIdentity, address: databaseId, accessController, directory: './orbitdb1' })
   })
 
   afterEach(async () => {
