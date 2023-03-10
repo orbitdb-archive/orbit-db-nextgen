@@ -30,7 +30,7 @@ describe('Database - Replication', function () {
     }
   }
 
-  before(async () => {
+  beforeEach(async () => {
     ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
     ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
     await connectPeers(ipfs1, ipfs2)
@@ -40,27 +40,7 @@ describe('Database - Replication', function () {
     identities = await Identities({ keystore })
     testIdentity1 = await identities.createIdentity({ id: 'userA' })
     testIdentity2 = await identities.createIdentity({ id: 'userB' })
-  })
 
-  after(async () => {
-    if (ipfs1) {
-      await ipfs1.stop()
-    }
-
-    if (ipfs2) {
-      await ipfs2.stop()
-    }
-
-    if (keystore) {
-      await keystore.close()
-    }
-
-    await rmrf(keysPath)
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
-  })
-
-  beforeEach(async () => {
     db1 = await Database({ OpLog, ipfs: ipfs1, identity: testIdentity1, address: databaseId, accessController, directory: './orbitdb1' })
     db2 = await Database({ OpLog, ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
   })
@@ -78,17 +58,33 @@ describe('Database - Replication', function () {
 
       await rmrf('./orbitdb2')
     }
+
+    if (ipfs1) {
+      await ipfs1.stop()
+    }
+
+    if (ipfs2) {
+      await ipfs2.stop()
+    }
+
+    if (keystore) {
+      await keystore.close()
+    }
+
+    await rmrf(keysPath)
+    await rmrf('./ipfs1')
+    await rmrf('./ipfs2')
   })
 
   it('replicates databases across two peers', async () => {
     let connected1 = false
     let connected2 = false
 
-    const onConnected1 = (entry) => {
+    const onConnected1 = (peerId, heads) => {
       connected1 = true
     }
 
-    const onConnected2 = (entry) => {
+    const onConnected2 = (peerId, heads) => {
       connected2 = true
     }
 
@@ -116,9 +112,55 @@ describe('Database - Replication', function () {
     deepStrictEqual(all1, all2)
   })
 
+  it('replicates databases across two peers with delays', async () => {
+    let connected1 = false
+    let connected2 = false
+
+    const onConnected1 = (peerId, heads) => {
+      connected1 = true
+    }
+
+    const onConnected2 = (peerId, heads) => {
+      connected2 = true
+    }
+
+    db1.events.on('join', onConnected1)
+    db2.events.on('join', onConnected2)
+
+    await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
+
+    await new Promise(resolve => {
+      setTimeout(() => resolve(), 1000)
+    })
+
+    await db1.addOperation({ op: 'PUT', key: 2, value: 'record 2 on db 1' })
+    await db1.addOperation({ op: 'PUT', key: 3, value: 'record 3 on db 1' })
+
+    await new Promise(resolve => {
+      setTimeout(() => resolve(), 1000)
+    })
+
+    await db1.addOperation({ op: 'PUT', key: 4, value: 'record 4 on db 1' })
+
+    await waitFor(() => connected1, () => true)
+    await waitFor(() => connected2, () => true)
+
+    const all1 = []
+    for await (const item of db1.log.iterator()) {
+      all1.unshift(item)
+    }
+
+    const all2 = []
+    for await (const item of db2.log.iterator()) {
+      all2.unshift(item)
+    }
+
+    deepStrictEqual(all1, all2)
+  })
+
   it('adds an operation before db2 is instantiated', async () => {
     let connected = false
-    const onConnected = (entry) => {
+    const onConnected = (peerId, heads) => {
       connected = true
     }
 
@@ -156,11 +198,11 @@ describe('Database - Replication', function () {
       let updateCount1 = 0
       let updateCount2 = 0
 
-      const onConnected1 = (entry) => {
+      const onConnected1 = (peerId, heads) => {
         connected1 = true
       }
 
-      const onConnected2 = (entry) => {
+      const onConnected2 = (peerId, heads) => {
         connected2 = true
       }
 
@@ -177,10 +219,11 @@ describe('Database - Replication', function () {
       db1.events.on('update', onUpdate1)
       db2.events.on('update', onUpdate2)
 
-      await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
-
       await waitFor(() => connected1, () => true)
       await waitFor(() => connected2, () => true)
+
+      await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
+
       await waitFor(() => updateCount1 >= expected, () => true)
       await waitFor(() => updateCount2 >= expected, () => true)
 
@@ -195,11 +238,11 @@ describe('Database - Replication', function () {
       let updateCount1 = 0
       let updateCount2 = 0
 
-      const onConnected1 = (entry) => {
+      const onConnected1 = async (peerId, heads) => {
         connected1 = true
       }
 
-      const onConnected2 = (entry) => {
+      const onConnected2 = async (peerId, heads) => {
         connected2 = true
       }
 
@@ -216,13 +259,14 @@ describe('Database - Replication', function () {
       db1.events.on('update', onUpdate1)
       db2.events.on('update', onUpdate2)
 
-      await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
-      await db1.addOperation({ op: 'PUT', key: 2, value: 'record 2 on db 1' })
-      await db1.addOperation({ op: 'PUT', key: 3, value: 'record 3 on db 1' })
-      await db1.addOperation({ op: 'PUT', key: 4, value: 'record 4 on db 1' })
-
       await waitFor(() => connected1, () => true)
       await waitFor(() => connected2, () => true)
+
+      await db1.addOperation({ op: 'PUT', key: 1, value: '11' })
+      await db1.addOperation({ op: 'PUT', key: 2, value: '22' })
+      await db1.addOperation({ op: 'PUT', key: 3, value: '33' })
+      await db1.addOperation({ op: 'PUT', key: 4, value: '44' })
+
       await waitFor(() => updateCount1 >= expected, () => true)
       await waitFor(() => updateCount2 >= expected, () => true)
 
