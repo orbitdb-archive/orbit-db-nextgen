@@ -38,6 +38,7 @@
     "ipfs": "^0.66.0",
     "it-all": "^2.0.0",
     "mocha": "^10.2.0",
+    "mocha-headless-chrome": "^4.0.0",
     "open-cli": "^7.1.0",
     "p-map-series": "^3.0.0",
     "path-browserify": "^1.0.1",
@@ -63,7 +64,7 @@
     "build:dist": "webpack --config conf/webpack.config.js",
     "build:debug": "webpack --config conf/webpack.debug.config.js",
     "build:docs/toc": "echo 'TODO'",
-    "build:tests": "webpack --config ./conf/webpack.tests.config.js",
+    "build:tests": "rm -f test/browser/bundle.js* && webpack --config ./conf/webpack.tests.config.js",
     "prepublishOnly": "npm run build",
     "lint": "standard --env=mocha",
     "lint:fix": "standard --fix"
