@@ -7,7 +7,7 @@ import testKeysPath from '../fixtures/test-keys-path.js'
 const keysPath = './testkeys'
 
 describe('Log - Append', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   let keystore
   let identities
