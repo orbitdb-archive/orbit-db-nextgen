@@ -4,7 +4,7 @@ import { copy } from 'fs-extra'
 import * as IPFS from 'ipfs'
 import { Log, Entry, Database, KeyStore, Identities } from '../src/index.js'
 import config from './config.js'
-import testKeysPath from './fixtures/test-keys-path.js '
+import testKeysPath from './fixtures/test-keys-path.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
 
