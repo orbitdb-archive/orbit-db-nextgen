@@ -75,18 +75,9 @@ describe('Replicating databases', function () {
       let synced = false
 
       const onJoin = async (peerId, heads) => {
-        // const head = heads[0]
-        // if (head && head.clock.time === amount) {
         console.timeEnd('sync')
         synced = true
-        // }
       }
-
-      // const onUpdated = (entry) => {
-      //   if (entry.clock.time === amount) {
-      //     synced = true
-      //   }
-      // }
 
       const onError = (err) => {
         console.error(err)
@@ -95,7 +86,6 @@ describe('Replicating databases', function () {
       db2 = await orbitdb2.open(db1.address)
 
       db2.events.on('join', onJoin)
-      // db2.events.on('update', onUpdated)
       db2.events.on('error', onError)
       db1.events.on('error', onError)
 
@@ -171,18 +161,9 @@ describe('Replicating databases', function () {
       let synced = false
 
       const onJoin = async (peerId, heads) => {
-        // const head = heads[0]
-        // if (head && head.clock.time === amount) {
         console.timeEnd('sync')
         synced = true
-        // }
       }
-
-      // const onUpdated = (entry) => {
-      //   if (entry.clock.time === amount) {
-      //     synced = true
-      //   }
-      // }
 
       const onError = (err) => {
         console.error(err)
@@ -191,7 +172,6 @@ describe('Replicating databases', function () {
       db2 = await orbitdb2.open(db1.address)
 
       db2.events.on('join', onJoin)
-      // db2.events.on('update', onUpdated)
       db2.events.on('error', onError)
       db1.events.on('error', onError)
 

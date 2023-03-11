@@ -83,11 +83,11 @@ describe('Documents Database Replication', function () {
     let connected1 = false
     let connected2 = false
 
-    const onConnected1 = (entry) => {
+    const onConnected1 = async (peerId, heads) => {
       connected1 = true
     }
 
-    const onConnected2 = (entry) => {
+    const onConnected2 = async (peerId, heads) => {
       connected2 = true
     }
 
