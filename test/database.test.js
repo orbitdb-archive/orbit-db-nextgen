@@ -1,6 +1,7 @@
 import { strictEqual, deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
-import { copy, exists } from 'fs-extra'
+import { existsSync } from 'fs'
+import { copy } from 'fs-extra'
 import * as IPFS from 'ipfs'
 import Path from 'path'
 import { Log, Entry, Database, KeyStore, Identities } from '../src/index.js'
@@ -75,7 +76,7 @@ describe('Database', function () {
 
       const headsPath = Path.join('./orbitdb/', `${databaseId}/`, '/log/_heads/')
 
-      strictEqual(await exists(headsPath), true)
+      strictEqual(await existsSync(headsPath), true)
 
       await db.close()
 
@@ -95,7 +96,7 @@ describe('Database', function () {
 
       const headsPath = Path.join('./custom-directory/', `${databaseId}/`, '/log/_heads/')
 
-      strictEqual(await exists(headsPath), true)
+      strictEqual(await existsSync(headsPath), true)
 
       await db.close()
 
