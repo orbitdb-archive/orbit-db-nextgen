@@ -93,7 +93,7 @@ describe('Database', function () {
       await db.close()
     })
 
-    it.only('uses given MemoryStorage for entryStorage', async () => {
+    it('uses given MemoryStorage for entryStorage', async () => {
       const entryStorage = await MemoryStorage()
       db = await Database({ OpLog, ipfs, identity: testIdentity, address: databaseId, accessController, directory: './orbitdb1', entryStorage })
       const op = { op: 'PUT', key: 1, value: 'record 1 on db 1' }
