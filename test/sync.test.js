@@ -240,7 +240,8 @@ describe('Sync protocol', function () {
     })
 
     it('starts syncing', async () => {
-      await waitFor(() => syncedEventFired, () => true)
+      // TODO: waiting for the last entry to be 'hello5'. Waiting for syncedEventFired is too unreliable because sometimes not all entries have been synced.
+      await waitFor(() => syncedHead.payload === 'hello5', () => true)
 
       strictEqual(syncedEventFired, true)
       deepStrictEqual(syncedHead, expectedEntry)
@@ -338,7 +339,7 @@ describe('Sync protocol', function () {
 
       await sync1.start()
 
-      await waitFor(() => syncedEventFired, () => true)
+      await waitFor(() => syncedHead.payload === 'hello10', () => true)
 
       strictEqual(syncedEventFired, true)
       deepStrictEqual(syncedHead, expectedEntry2)
