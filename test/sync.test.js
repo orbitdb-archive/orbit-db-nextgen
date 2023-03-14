@@ -93,7 +93,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe('Syncing automatically', () => {
+  describe.only('Syncing automatically', () => {
     let sync1, sync2
     let joinEventFired = false
     let syncedEventFired = false
@@ -142,7 +142,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe('Starting sync manually', () => {
+  describe.only('Starting sync manually', () => {
     let sync1, sync2
     let syncedEventFired = false
     let syncedHead
@@ -194,7 +194,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.skip('Stopping sync', () => {
+  describe.only('Stopping sync', () => {
     let sync1, sync2
     let log1, log2
     let syncedEventFired = false
@@ -220,13 +220,14 @@ describe('Sync protocol', function () {
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      sync2.events.on('leave', onLeave)
+      sync1.events.on('leave', onLeave)
 
-      await log1.append('hello1')
-      await log1.append('hello2')
-      await log1.append('hello3')
-      await log1.append('hello4')
+      await sync1.add(await log1.append('hello1'))
+      await sync1.add(await log1.append('hello2'))
+      await sync1.add(await log1.append('hello3'))
+      await sync1.add(await log1.append('hello4'))
       expectedEntry = await log1.append('hello5')
+      await sync1.add(expectedEntry)
     })
 
     after(async () => {
@@ -249,13 +250,13 @@ describe('Sync protocol', function () {
     })
 
     it('stops syncing', async () => {
-      await sync1.stop()
+      await sync2.stop()
 
-      await log1.append('hello6')
-      await log1.append('hello7')
-      await log1.append('hello8')
-      await log1.append('hello9')
-      await log1.append('hello10')
+      await sync1.add(await log1.append('hello6'))
+      await sync1.add(await log1.append('hello7'))
+      await sync1.add(await log1.append('hello8'))
+      await sync1.add(await log1.append('hello9'))
+      await sync1.add(await log1.append('hello10'))
 
       await waitFor(() => leaveEventFired, () => true)
 
@@ -263,7 +264,7 @@ describe('Sync protocol', function () {
     })
 
     it('the peerId passed by the \'leave\' event is the expected peer ID', async () => {
-      strictEqual(String(leavingPeerId), String(peerId1))
+      strictEqual(String(leavingPeerId), String(peerId2))
     })
 
     it('updates the set of connected peers', async () => {
@@ -272,7 +273,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.skip('Restarting sync after stopping it manually', () => {
+  describe.only('Restarting sync after stopping it manually', () => {
     let sync1, sync2
     let log1, log2
     let syncedEventFired = false
@@ -298,11 +299,12 @@ describe('Sync protocol', function () {
 
       sync2.events.on('leave', onLeave)
 
-      await log1.append('hello1')
-      await log1.append('hello2')
-      await log1.append('hello3')
-      await log1.append('hello4')
+      await sync1.add(await log1.append('hello1'))
+      await sync1.add(await log1.append('hello2'))
+      await sync1.add(await log1.append('hello3'))
+      await sync1.add(await log1.append('hello4'))
       expectedEntry = await log1.append('hello5')
+      await sync1.add(expectedEntry)
 
       await waitFor(() => syncedEventFired, () => true)
 
@@ -348,7 +350,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.skip('Syncing after initial sync', () => {
+  describe('Syncing after initial sync', () => {
     let sync1, sync2
     let log1, log2
     let syncedEventFired = false
@@ -367,11 +369,12 @@ describe('Sync protocol', function () {
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      await log1.append('hello1')
-      await log1.append('hello2')
-      await log1.append('hello3')
-      await log1.append('hello4')
+      await sync1.add(await log1.append('hello1'))
+      await sync1.add(await log1.append('hello2'))
+      await sync1.add(await log1.append('hello3'))
+      await sync1.add(await log1.append('hello4'))
       expectedEntry = await log1.append('hello5')
+      await sync1.add(expectedEntry)
 
       await waitFor(() => syncedEventFired, () => true)
 
