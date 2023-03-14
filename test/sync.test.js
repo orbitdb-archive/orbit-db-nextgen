@@ -209,7 +209,9 @@ describe('Sync protocol', function () {
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        syncedEventFired = true
+        if (expectedEntry) {
+          syncedEventFired = expectedEntry.hash === syncedHead.hash
+        }
       }
 
       const onLeave = async (peerId) => {
@@ -241,7 +243,7 @@ describe('Sync protocol', function () {
 
     it('starts syncing', async () => {
       // TODO: waiting for the last entry to be 'hello5'. Waiting for syncedEventFired is too unreliable because sometimes not all entries have been synced.
-      await waitFor(() => syncedHead.payload === 'hello5', () => true)
+      await waitFor(() => syncedEventFired, () => true)
 
       strictEqual(syncedEventFired, true)
       deepStrictEqual(syncedHead, expectedEntry)
