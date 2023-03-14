@@ -93,7 +93,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.only('Syncing automatically', () => {
+  describe('Syncing automatically', () => {
     let sync1, sync2
     let joinEventFired = false
     let syncedEventFired = false
@@ -142,7 +142,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.only('Starting sync manually', () => {
+  describe('Starting sync manually', () => {
     let sync1, sync2
     let syncedEventFired = false
     let syncedHead
@@ -194,7 +194,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.only('Stopping sync', () => {
+  describe('Stopping sync', () => {
     let sync1, sync2
     let log1, log2
     let syncedEventFired = false
@@ -273,7 +273,7 @@ describe('Sync protocol', function () {
     })
   })
 
-  describe.only('Restarting sync after stopping it manually', () => {
+  describe('Restarting sync after stopping it manually', () => {
     let sync1, sync2
     let log1, log2
     let syncedEventFired = false
