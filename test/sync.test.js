@@ -68,7 +68,7 @@ describe('Sync protocol', function () {
       notStrictEqual(sync, undefined)
     })
 
-    it('has an ad function', async () => {
+    it('has an add function', async () => {
       notStrictEqual(sync.add, undefined)
       strictEqual(typeof sync.add, 'function')
     })
@@ -242,7 +242,6 @@ describe('Sync protocol', function () {
     })
 
     it('starts syncing', async () => {
-      // TODO: waiting for the last entry to be 'hello5'. Waiting for syncedEventFired is too unreliable because sometimes not all entries have been synced.
       await waitFor(() => syncedEventFired, () => true)
 
       strictEqual(syncedEventFired, true)
@@ -290,7 +289,9 @@ describe('Sync protocol', function () {
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        syncedEventFired = true
+        if (expectedEntry) {
+          syncedEventFired = expectedEntry.hash === syncedHead.hash
+        }
       }
 
       const onLeave = async (peerId) => {
@@ -337,11 +338,13 @@ describe('Sync protocol', function () {
       await log1.append('hello9')
       expectedEntry2 = await log1.append('hello10')
 
+      expectedEntry = expectedEntry2
+
       syncedEventFired = false
 
       await sync1.start()
 
-      await waitFor(() => syncedHead.payload === 'hello10', () => true)
+      await waitFor(() => syncedEventFired, () => true)
 
       strictEqual(syncedEventFired, true)
       deepStrictEqual(syncedHead, expectedEntry2)
@@ -366,7 +369,9 @@ describe('Sync protocol', function () {
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        syncedEventFired = true
+        if (expectedEntry) {
+          syncedEventFired = expectedEntry.hash === syncedHead.hash
+        }
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
@@ -406,6 +411,7 @@ describe('Sync protocol', function () {
       await log1.append('hello9')
       const expectedEntry2 = await log1.append('hello10')
       await sync1.add(expectedEntry2)
+      expectedEntry = expectedEntry2
       await waitFor(() => syncedEventFired, () => true)
       deepStrictEqual(syncedHead, expectedEntry2)
     })
