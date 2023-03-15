@@ -5,28 +5,34 @@ import { EventEmitter } from 'events'
 
 /**
  * @description
- * Syncs an append-only, conflict-free replicated data type (CRDT) log between multiple peers.
+ * Syncs an append-only, conflict-free replicated data type (CRDT) log between
+ * multiple peers.
  *
- * Sync is responsible for synchronizing heads between multiple peers.
- * - When Sync is started, heads are sent by peers sharing the same log id.
- * - Heads are received by each peer from another peer with the same log id.
- * - There is no guarantee that heads will be received in the order they were generated on the sending peer.
- * - There is no guarantee that all heads will be received.
- * - There is no guarantee that heads will reflect the latest heads on the remote peer.
- * - Calling Sync.add is neither synchronous nor deterministic. Calling Sync.add with async/await only guarantees that the message is published. It does not guarantee when the message will be received or even that the message is recieved at all.
- * - Determining whether a peer has received a message can be handled by registering a callback using onSynced. However, there is no guarantee that every log entry will be received and onSynced can not be used to determine whether every head is received.
- * - The only guarantee that Sync provides is that heads will eventually reach consistency between all peers.
+ * The sync protocol synchronizes heads between multiple peers, both during
+ * startup and also when new entries are appended to the log.
+ *
+ * When Sync is started, head entries are exchanged between peers sharing the
+ * same log id. Heads are swapped between peers using libp2p's handle function.
+ * Once connected, peers publish updated new heads using the PubSub protocol.
+ *
+ * The sync protocol only guarantees that the message is published; it does not
+ * guarantee the order in which messages are received or even that the message
+ * is recieved at all. The sync protocol only guarantees that heads will
+ * eventually reach consistency between all peers with the same address.
  */
 
 /**
  * Creates a Sync instance for sychronizing logs between multiple peers.
- * @param {Object} options One or more options for configurating Sync.
- * @param {IPFS} options.ipfs An IPFS instance
- * @param {Log} options.log A Log instance.
- * @param {Object} options.events An event emitter. Defaults to an instance of EventEmitter.
- * @param {Function} options.onSynced A callback function for determining whether an entry has been receieved.
- * @param {Boolean} options.start True if synchronization should happen automatically, false otherwise. Defaults to true.
- * @return {Sync} The Sync instance.
+ * @param {Object} params One or more parameters for configuring Sync.
+ * @param {IPFS} params.ipfs An IPFS instance. Used for synchronizing peers.
+ * @param {Log} params.log The Log instance to sync.
+ * @param {Object} params.events An event emitter. Defaults to an instance of
+ * EventEmitter. Events emitted are 'join', 'error' and 'leave'.
+ * @param {Function} params.onSynced A function that is called after the peer
+ * has received heads from another peer.
+ * @param {Boolean} params.start True if sync should start automatically, false
+ * otherwise. Defaults to true.
+ * @return {Sync} The Sync protocol instance.
  */
 const Sync = async ({ ipfs, log, events, onSynced, start }) => {
   const address = log.id
