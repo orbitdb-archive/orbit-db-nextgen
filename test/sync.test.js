@@ -93,6 +93,28 @@ describe('Sync protocol', function () {
     })
   })
 
+  describe('Params', () => {
+    it('throws an error when IPFS is not defined', async () => {
+      let err
+      try {
+        await Sync({})
+      } catch (e) {
+        err = e.toString()
+      }
+      strictEqual(err, 'Error: An instance of ipfs is required.')
+    })
+
+    it('throws an error when log is not defined', async () => {
+      let err
+      try {
+        await Sync({ ipfs: ipfs1 })
+      } catch (e) {
+        err = e.toString()
+      }
+      strictEqual(err, 'Error: An instance of log is required.')
+    })
+  })
+
   describe('Syncing automatically', () => {
     let sync1, sync2
     let joinEventFired = false

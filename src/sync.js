@@ -35,6 +35,9 @@ import { EventEmitter } from 'events'
  * @return {Sync} The Sync protocol instance.
  */
 const Sync = async ({ ipfs, log, events, onSynced, start }) => {
+  if (!ipfs) throw new Error('An instance of ipfs is required.')
+  if (!log) throw new Error('An instance of log is required.')
+
   const address = log.id
   const headsSyncAddress = Path.join('/orbitdb/heads/', address)
 
