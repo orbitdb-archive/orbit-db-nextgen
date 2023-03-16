@@ -80,7 +80,6 @@ const Sync = async ({ ipfs, log, events, onSynced, start }) => {
       peers.add(peerId)
       await pipe(stream, receiveHeads(peerId), sendHeads, stream)
     } catch (e) {
-      console.error(e)
       peers.delete(peerId)
       events.emit('error', e)
     }

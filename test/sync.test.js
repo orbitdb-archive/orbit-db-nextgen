@@ -120,17 +120,29 @@ describe('Sync protocol', function () {
 
   describe('Syncing automatically', () => {
     let sync1, sync2
+    let log1, log2
     let joinEventFired = false
     let syncedEventFired = false
     let syncedHead
     let expectedEntry
 
     before(async () => {
-      const log1 = await Log(testIdentity1, { logId: 'synclog1' })
-      const log2 = await Log(testIdentity2, { logId: 'synclog1' })
+      const entryStorage1 = await ComposedStorage(
+        await LRUStorage({ size: 1000 }),
+        await IPFSBlockStorage({ ipfs: ipfs1, pin: true })
+      )
+
+      const entryStorage2 = await ComposedStorage(
+        await LRUStorage({ size: 1000 }),
+        await IPFSBlockStorage({ ipfs: ipfs2, pin: true })
+      )
+
+      log1 = await Log(testIdentity1, { logId: 'synclog1', entryStorage: entryStorage1 })
+      log2 = await Log(testIdentity2, { logId: 'synclog1', entryStorage: entryStorage2 })
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
+        log2.joinEntry(syncedHead)
         syncedEventFired = true
       }
 
@@ -165,6 +177,32 @@ describe('Sync protocol', function () {
       strictEqual(sync2.peers.has(String(peerId1)), true)
       strictEqual(sync1.peers.has(String(peerId2)), true)
     })
+
+    it('eventually reaches consistency', async () => {
+      await sync1.add(await log1.append('hello2'))
+      await sync1.add(await log1.append('hello3'))
+      await sync1.add(await log1.append('hello4'))
+      expectedEntry = await log1.append('hello5')
+      await sync1.add(expectedEntry)
+
+      await waitFor(() => syncedEventFired, () => true)
+
+      deepStrictEqual(syncedHead, expectedEntry)
+
+      deepStrictEqual(await log1.heads(), await log2.heads())
+
+      const all1 = []
+      for await (const item of log1.iterator()) {
+        all1.unshift(item)
+      }
+
+      const all2 = []
+      for await (const item of log2.iterator()) {
+        all2.unshift(item)
+      }
+
+      deepStrictEqual(all1, all2)
+    })
   })
 
   describe('Starting sync manually', () => {
@@ -175,33 +213,18 @@ describe('Sync protocol', function () {
     let expectedEntry
 
     before(async () => {
-      const entryStorage1 = await ComposedStorage(
-        await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: ipfs1, pin: true })
-      )
-
-      const entryStorage2 = await ComposedStorage(
-        await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: ipfs2, pin: true })
-      )
-
-      log1 = await Log(testIdentity1, { logId: 'synclog1', entryStorage: entryStorage1 })
-      log2 = await Log(testIdentity2, { logId: 'synclog1', entryStorage: entryStorage2 })
+      log1 = await Log(testIdentity1, { logId: 'synclog1' })
+      log2 = await Log(testIdentity2, { logId: 'synclog1' })
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        log2.joinEntry(syncedHead)
         syncedEventFired = expectedEntry.hash === syncedHead.hash
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced, start: false })
 
-      await log1.append('hello1')
-      await log1.append('hello2')
-      await log1.append('hello3')
-      await log1.append('hello4')
-      expectedEntry = await log1.append('hello5')
+      expectedEntry = await log1.append('hello1')
     })
 
     after(async () => {
@@ -228,20 +251,6 @@ describe('Sync protocol', function () {
     it('updates the set of connected peers', async () => {
       strictEqual(sync2.peers.has(String(peerId1)), true)
       strictEqual(sync1.peers.has(String(peerId2)), true)
-    })
-
-    it('eventually reaches consistency', async () => {
-      const all1 = []
-      for await (const item of log1.iterator()) {
-        all1.unshift(item)
-      }
-
-      const all2 = []
-      for await (const item of log2.iterator()) {
-        all2.unshift(item)
-      }
-
-      deepStrictEqual(all1, all2)
     })
   })
 
@@ -470,6 +479,8 @@ describe('Sync protocol', function () {
     let sync1, sync2
     let joinEventFired = false
     let leaveEventFired = false
+    let errorFired = false
+    let error
     let receivedHeads = []
     let joiningPeerId
     let leavingPeerId
@@ -491,10 +502,20 @@ describe('Sync protocol', function () {
 
       await log1.append('hello!')
 
+      const onSynced = () => {
+        throw new Error('Sync Error')
+      }
+
+      const onError = (e) => {
+        errorFired = true
+        error = e.toString()
+      }
+
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
-      sync2 = await Sync({ ipfs: ipfs2, log: log2 })
+      sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
       sync1.events.on('join', onJoin)
       sync1.events.on('leave', onLeave)
+      sync2.events.on('error', onError)
 
       await waitFor(() => joinEventFired, () => true)
 
@@ -531,8 +552,10 @@ describe('Sync protocol', function () {
       strictEqual(String(leavingPeerId), String(id))
     })
 
-    it.skip('emits an \'error\' event', async () => {
-      // TODO
+    it('emits an \'error\' event', async () => {
+      await sync2.start()
+      strictEqual(errorFired, true)
+      strictEqual(error, 'Error: Sync Error')
     })
   })
 })
