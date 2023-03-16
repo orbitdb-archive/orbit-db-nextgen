@@ -332,7 +332,7 @@ describe('Sync protocol', function () {
     let syncedEventFired = false
     let leaveEventFired = false
     let syncedHead
-    let expectedEntry, expectedEntry2
+    let expectedEntry
 
     before(async () => {
       log1 = await Log(testIdentity1, { logId: 'synclog1' })
@@ -387,9 +387,7 @@ describe('Sync protocol', function () {
       await log1.append('hello7')
       await log1.append('hello8')
       await log1.append('hello9')
-      expectedEntry2 = await log1.append('hello10')
-
-      expectedEntry = expectedEntry2
+      expectedEntry = await log1.append('hello10')
 
       syncedEventFired = false
 
@@ -398,7 +396,7 @@ describe('Sync protocol', function () {
       await waitFor(() => syncedEventFired, () => true)
 
       strictEqual(syncedEventFired, true)
-      deepStrictEqual(syncedHead, expectedEntry2)
+      deepStrictEqual(syncedHead, expectedEntry)
     })
 
     it('updates the set of connected peers', async () => {
