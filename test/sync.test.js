@@ -8,6 +8,9 @@ import config from './config.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
 import testKeysPath from './fixtures/test-keys-path.js'
+import LRUStorage from '../src/storage/lru.js'
+import IPFSBlockStorage from '../src/storage/ipfs-block.js'
+import ComposedStorage from '../src/storage/composed.js'
 
 const keysPath = './testkeys'
 
@@ -166,17 +169,29 @@ describe('Sync protocol', function () {
 
   describe('Starting sync manually', () => {
     let sync1, sync2
+    let log1, log2
     let syncedEventFired = false
     let syncedHead
     let expectedEntry
 
     before(async () => {
-      const log1 = await Log(testIdentity1, { logId: 'synclog1' })
-      const log2 = await Log(testIdentity2, { logId: 'synclog1' })
+      const entryStorage1 = await ComposedStorage(
+        await LRUStorage({ size: 1000 }),
+        await IPFSBlockStorage({ ipfs: ipfs1, pin: true })
+      )
+
+      const entryStorage2 = await ComposedStorage(
+        await LRUStorage({ size: 1000 }),
+        await IPFSBlockStorage({ ipfs: ipfs2, pin: true })
+      )
+
+      log1 = await Log(testIdentity1, { logId: 'synclog1', entryStorage: entryStorage1 })
+      log2 = await Log(testIdentity2, { logId: 'synclog1', entryStorage: entryStorage2 })
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        syncedEventFired = true
+        log2.joinEntry(syncedHead)
+        syncedEventFired = expectedEntry.hash === syncedHead.hash
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
@@ -213,6 +228,20 @@ describe('Sync protocol', function () {
     it('updates the set of connected peers', async () => {
       strictEqual(sync2.peers.has(String(peerId1)), true)
       strictEqual(sync1.peers.has(String(peerId2)), true)
+    })
+
+    it('eventually reaches consistency', async () => {
+      const all1 = []
+      for await (const item of log1.iterator()) {
+        all1.unshift(item)
+      }
+
+      const all2 = []
+      for await (const item of log2.iterator()) {
+        all2.unshift(item)
+      }
+
+      deepStrictEqual(all1, all2)
     })
   })
 
