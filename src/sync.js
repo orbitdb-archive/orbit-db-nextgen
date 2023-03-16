@@ -11,9 +11,13 @@ import { EventEmitter } from 'events'
  * The sync protocol synchronizes heads between multiple peers, both during
  * startup and also when new entries are appended to the log.
  *
- * When Sync is started, head entries are exchanged between peers sharing the
- * same log id. Heads are swapped between peers using libp2p's handle function.
- * Once connected, peers publish updated new heads using the PubSub protocol.
+ * When Sync is started, peers "dial" each other using libp2p's custom protocol
+ * handler and initiate the exchange of heads each peer currently has. Once
+ * initial sync has completed, peers notify one another of updates to heads
+ * using pubsub "subscribe" with the same log.id topic. A peer with new heads
+ * can broadcast changes to other peers using pubsub "publish". Peers
+ * subscribed to the same topic will then be notified and will update their
+ * heads accordingly.
  *
  * The sync protocol only guarantees that the message is published; it does not
  * guarantee the order in which messages are received or even that the message
