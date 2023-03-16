@@ -146,7 +146,7 @@ describe('Sync protocol', function () {
         syncedEventFired = true
       }
 
-      const onJoin = async (peerId, heads) => {
+      const onJoin = (peerId, heads) => {
         joinEventFired = true
       }
 
@@ -173,7 +173,7 @@ describe('Sync protocol', function () {
       deepStrictEqual(syncedHead, expectedEntry)
     })
 
-    it('updates the set of connected peers', async () => {
+    it('updates the set of connected peers', () => {
       strictEqual(sync2.peers.has(String(peerId1)), true)
       strictEqual(sync1.peers.has(String(peerId2)), true)
     })
@@ -244,11 +244,11 @@ describe('Sync protocol', function () {
       strictEqual(syncedEventFired, true)
     })
 
-    it('syncs the correct head', async () => {
+    it('syncs the correct head', () => {
       deepStrictEqual(syncedHead, expectedEntry)
     })
 
-    it('updates the set of connected peers', async () => {
+    it('updates the set of connected peers', () => {
       strictEqual(sync2.peers.has(String(peerId1)), true)
       strictEqual(sync1.peers.has(String(peerId2)), true)
     })
@@ -274,7 +274,7 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onLeave = async (peerId) => {
+      const onLeave = (peerId) => {
         leaveEventFired = true
         leavingPeerId = peerId
       }
@@ -325,11 +325,11 @@ describe('Sync protocol', function () {
       deepStrictEqual(syncedHead, expectedEntry)
     })
 
-    it('the peerId passed by the \'leave\' event is the expected peer ID', async () => {
+    it('the peerId passed by the \'leave\' event is the expected peer ID', () => {
       strictEqual(String(leavingPeerId), String(peerId2))
     })
 
-    it('updates the set of connected peers', async () => {
+    it('updates the set of connected peers', () => {
       strictEqual(sync2.peers.has(String(leavingPeerId)), false)
       strictEqual(sync1.peers.has(String(peerId2)), false)
     })
@@ -354,7 +354,7 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onLeave = async (peerId) => {
+      const onLeave = (peerId) => {
         leaveEventFired = true
       }
 
@@ -408,7 +408,7 @@ describe('Sync protocol', function () {
       deepStrictEqual(syncedHead, expectedEntry)
     })
 
-    it('updates the set of connected peers', async () => {
+    it('updates the set of connected peers', () => {
       strictEqual(sync1.peers.has(String(peerId2)), true)
       strictEqual(sync2.peers.has(String(peerId1)), true)
     })
@@ -455,6 +455,11 @@ describe('Sync protocol', function () {
       if (sync2) {
         await sync2.stop()
       }
+
+      await ipfs1.stop()
+      await ipfs2.stop()
+      await ipfs1.start()
+      await ipfs2.start()
     })
 
     it('doesn\'t sync when an entry is added to a log', async () => {
@@ -479,8 +484,8 @@ describe('Sync protocol', function () {
     let sync1, sync2
     let joinEventFired = false
     let leaveEventFired = false
-    let errorFired = false
-    let error
+    let errorEventFired = false
+    let err
     let receivedHeads = []
     let joiningPeerId
     let leavingPeerId
@@ -489,27 +494,27 @@ describe('Sync protocol', function () {
       const log1 = await Log(testIdentity1, { logId: 'synclog2' })
       const log2 = await Log(testIdentity2, { logId: 'synclog2' })
 
-      const onJoin = async (peerId, heads) => {
+      const onJoin = (peerId, heads) => {
         joinEventFired = true
         joiningPeerId = peerId
         receivedHeads = heads
       }
 
-      const onLeave = async (peerId) => {
+      const onLeave = (peerId) => {
         leaveEventFired = true
         leavingPeerId = peerId
       }
 
-      await log1.append('hello!')
+      const onError = (e) => {
+        errorEventFired = true
+        err = e.toString()
+      }
 
-      const onSynced = () => {
+      const onSynced = (bytes) => {
         throw new Error('Sync Error')
       }
 
-      const onError = (e) => {
-        errorFired = true
-        error = e.toString()
-      }
+      await log1.append('hello!')
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
@@ -518,6 +523,7 @@ describe('Sync protocol', function () {
       sync2.events.on('error', onError)
 
       await waitFor(() => joinEventFired, () => true)
+      await waitFor(() => errorEventFired, () => true)
 
       await sync2.stop()
 
@@ -533,11 +539,11 @@ describe('Sync protocol', function () {
       }
     })
 
-    it('emits \'join\' event when a peer starts syncing', async () => {
+    it('emits \'join\' event when a peer starts syncing', () => {
       strictEqual(joinEventFired, true)
     })
 
-    it('heads passed by the \'join\' event are the expected heads', async () => {
+    it('heads passed by the \'join\' event are the expected heads', () => {
       strictEqual(receivedHeads.length, 1)
       strictEqual(receivedHeads[0].payload, 'hello!')
     })
@@ -552,10 +558,9 @@ describe('Sync protocol', function () {
       strictEqual(String(leavingPeerId), String(id))
     })
 
-    it('emits an \'error\' event', async () => {
-      await sync2.start()
-      strictEqual(errorFired, true)
-      strictEqual(error, 'Error: Sync Error')
+    it('emits an \'error\' event', () => {
+      strictEqual(errorEventFired, true)
+      strictEqual(err, 'Error: Sync Error')
     })
   })
 })
