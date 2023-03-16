@@ -105,7 +105,6 @@ const Sync = async ({ ipfs, log, events, onSynced, start }) => {
           if (e.code === 'ERR_UNSUPPORTED_PROTOCOL') {
             // Skip peer, they don't have this database currently
           } else {
-            console.error(e)
             peers.delete(peerId)
             events.emit('error', e)
           }
@@ -128,7 +127,6 @@ const Sync = async ({ ipfs, log, events, onSynced, start }) => {
           await onSynced(message.data)
         }
       } catch (e) {
-        console.error(e)
         events.emit('error', e)
       }
     }
