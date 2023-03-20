@@ -16,22 +16,21 @@ const databaseInterfaces = [
     open: async (orbitdb, address, options) => await orbitdb.open(address, options),
     write: async (db, index) => await db.add('hello' + index),
     query: (db) => db.all().length
+  },
+  {
+    name: 'key-value',
+    open: async (orbitdb, address, options) => await orbitdb.open(address, { ...options, type: 'keyvalue' }),
+    write: async (db, index) => await db.put('hello', index),
+    query: async (db) => { return await db.get('hello') }
+  },
+  {
+    name: 'documents',
+    open: async (orbitdb, address, options) => await orbitdb.open(address, { ...options, type: 'documents' }),
+    write: async (db, index) => await db.put({ _id: 'hello', testing: index }), query: async (db) => {
+      const docs = await db.get('hello')
+      return docs ? docs[0].testing : 0
+    }
   }
-  // {
-  //   name: 'key-value',
-  //   open: async (orbitdb, address, options) => await orbitdb.open(address, options),
-  //   write: async (db, index) => await db.put('hello', index),
-  //   read: async (db) => await db.get('hello')
-  // }
-//   {
-//     name: 'documents',
-//     open: async (orbitdb, address, options) => await orbitdb.docs(address, options),
-//     query: async (db, index) => await db.put({ _id: 'hello', testing: index }),
-//     query: (db) => {
-//       const docs = db.get('hello')
-//       return docs ? docs[0].testing : 0
-//     },
-//   },
 ]
 
 describe('orbit-db - Multiple Databases', () => {
