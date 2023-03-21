@@ -58,7 +58,7 @@ describe('orbit-db - Multiple Databases', () => {
       await orbitdb2.stop()
     }
 
-    rmrf.sync('./orbitdb')
+    await rmrf('./orbitdb')
 
     if (ipfs1) {
       await ipfs1.stop()
@@ -67,8 +67,8 @@ describe('orbit-db - Multiple Databases', () => {
       await ipfs2.stop()
     }
 
-    rmrf.sync('./ipfs1')
-    rmrf.sync('./ipfs2')
+    await rmrf('./ipfs1')
+    await rmrf('./ipfs2')
   })
 
   beforeEach(async () => {
