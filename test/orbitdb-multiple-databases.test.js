@@ -39,7 +39,7 @@ const databaseInterfaces = [
   }
 ]
 
-describe.only('orbit-db - Multiple Databases', function () {
+describe('orbit-db - Multiple Databases', function () {
   this.timeout(30000)
 
   let ipfs1, ipfs2
