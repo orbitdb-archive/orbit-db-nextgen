@@ -125,17 +125,15 @@ describe('orbit-db - Multiple Databases', function () {
   })
 
   afterEach(async () => {
-    /*
     for (const db of remoteDatabases) {
       await db.drop()
-      await db.close()
+      // await db.close()
     }
 
     for (const db of localDatabases) {
       await db.drop()
-      await db.close()
+      // await db.close()
     }
-    */
   })
 
   it('replicates multiple open databases', async () => {
@@ -163,21 +161,13 @@ describe('orbit-db - Multiple Databases', function () {
 
     console.log('Waiting for replication to finish')
 
-    await new Promise((resolve, reject) => {
-      const interval = setInterval(() => {
-        if (allReplicated()) {
-          clearInterval(interval)
-          // Verify that the databases contain all the right entries
-          databaseInterfaces.forEach(async (dbInterface, index) => {
-            const db = remoteDatabases[index]
-            const result = await dbInterface.query(db)
-            strictEqual(result, entryCount)
-            strictEqual((await db.log.all()).length, entryCount)
-          })
+    await waitFor(() => allReplicated(), () => true)
 
-          resolve()
-        }
-      }, 200)
-    })
+    for (let i = 0; i < databaseInterfaces.length; i++) {
+      const db = remoteDatabases[i]
+      const result = await databaseInterfaces[i].query(db)
+      strictEqual(result, entryCount)
+      strictEqual((await db.log.all()).length, entryCount)
+    }
   })
 })
