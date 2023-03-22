@@ -125,15 +125,17 @@ describe.only('orbit-db - Multiple Databases', function () {
   })
 
   afterEach(async () => {
+    /*
     for (const db of remoteDatabases) {
-      // await db.drop()
-      // await db.close()
+      await db.drop()
+      await db.close()
     }
 
     for (const db of localDatabases) {
-      // await db.drop()
-      // await db.close()
+      await db.drop()
+      await db.close()
     }
+    */
   })
 
   it('replicates multiple open databases', async () => {
@@ -150,30 +152,29 @@ describe.only('orbit-db - Multiple Databases', function () {
         await dbInterface.write(db, i)
       }
     }
-    
+
     const isReplicated = async (db) => {
       const all = await db.log.all()
       return all.length === entryCount
     }
-    
+
     // Function to check if all databases have been replicated
     const allReplicated = () => remoteDatabases.every(isReplicated)
 
     console.log('Waiting for replication to finish')
 
     await new Promise((resolve, reject) => {
-      const interval = setInterval(() => { 
+      const interval = setInterval(() => {
         if (allReplicated()) {
           clearInterval(interval)
           // Verify that the databases contain all the right entries
           databaseInterfaces.forEach(async (dbInterface, index) => {
             const db = remoteDatabases[index]
             const result = await dbInterface.query(db)
-            const all = await db.log.all()
             strictEqual(result, entryCount)
             strictEqual((await db.log.all()).length, entryCount)
           })
-          
+
           resolve()
         }
       }, 200)
