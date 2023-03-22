@@ -14,26 +14,34 @@ const databaseInterfaces = [
   {
     name: 'event-store',
     open: async (orbitdb, address, options) => await orbitdb.open(address, options),
-    write: async (db, index) => await db.add('hello' + index),
-    query: (db) => db.all().length
+    write: async (db, index) => {
+      await db.add('hello' + index)
+    },
+    query: async (db) => {
+      const all = await db.all()
+      return all.length
+    }
   },
   {
     name: 'key-value',
     open: async (orbitdb, address, options) => await orbitdb.open(address, { ...options, type: 'keyvalue' }),
     write: async (db, index) => await db.put('hello', index),
-    query: async (db) => { return await db.get('hello') }
+    query: async (db) => await db.get('hello')
   },
   {
     name: 'documents',
     open: async (orbitdb, address, options) => await orbitdb.open(address, { ...options, type: 'documents' }),
-    write: async (db, index) => await db.put({ _id: 'hello', testing: index }), query: async (db) => {
-      const docs = await db.get('hello')
-      return docs ? docs[0].testing : 0
+    write: async (db, index) => await db.put({ _id: 'hello', testing: index }),
+    query: async (db) => {
+      const doc = await db.get('hello')
+      return doc ? doc.value.testing : 0
     }
   }
 ]
 
-describe('orbit-db - Multiple Databases', () => {
+describe.only('orbit-db - Multiple Databases', function () {
+  this.timeout(30000)
+
   let ipfs1, ipfs2
   let orbitdb1, orbitdb2
 
@@ -117,49 +125,55 @@ describe('orbit-db - Multiple Databases', () => {
   })
 
   afterEach(async () => {
-    for (const db of remoteDatabases) { await db.drop() }
+    for (const db of remoteDatabases) {
+      // await db.drop()
+      // await db.close()
+    }
 
-    for (const db of localDatabases) { await db.drop() }
+    for (const db of localDatabases) {
+      // await db.drop()
+      // await db.close()
+    }
   })
 
   it('replicates multiple open databases', async () => {
     const entryCount = 32
-    const entryArr = []
-
-    // Create an array that we use to create the db entries
-    for (let i = 1; i < entryCount + 1; i++) {
-      entryArr.push(i)
-    }
 
     // Write entries to each database
     console.log('Writing to databases')
     for (let index = 0; index < databaseInterfaces.length; index++) {
       const dbInterface = databaseInterfaces[index]
       const db = localDatabases[index]
-      await entryArr.map(val => dbInterface.write(db, val))
+
+      // Create an array that we use to create the db entries
+      for (let i = 1; i < entryCount + 1; i++) {
+        await dbInterface.write(db, i)
+      }
     }
-
-    await new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 1000)
-    })
-
+    
+    const isReplicated = async (db) => {
+      const all = await db.log.all()
+      return all.length === entryCount
+    }
+    
     // Function to check if all databases have been replicated
-    const allReplicated = () => {
-      return remoteDatabases.every(async db => (await db.all()).length === entryCount)
-    }
+    const allReplicated = () => remoteDatabases.every(isReplicated)
 
     console.log('Waiting for replication to finish')
 
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(() => {
+    await new Promise((resolve, reject) => {
+      const interval = setInterval(() => { 
         if (allReplicated()) {
           clearInterval(interval)
           // Verify that the databases contain all the right entries
           databaseInterfaces.forEach(async (dbInterface, index) => {
             const db = remoteDatabases[index]
-            const result = dbInterface.query(db)
+            const result = await dbInterface.query(db)
+            const all = await db.log.all()
             strictEqual(result, entryCount)
+            strictEqual((await db.log.all()).length, entryCount)
           })
+          
           resolve()
         }
       }, 200)
