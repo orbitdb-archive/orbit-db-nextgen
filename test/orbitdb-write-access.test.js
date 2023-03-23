@@ -9,7 +9,7 @@ import connectPeers from './utils/connect-nodes.js'
 
 const dbPath = './orbitdb/tests/write-permissions'
 
-describe('orbit-db - Write Permissions', function () {
+describe('OrbitDB - Write Permissions', function () {
   this.timeout(20000)
 
   let ipfs1, ipfs2

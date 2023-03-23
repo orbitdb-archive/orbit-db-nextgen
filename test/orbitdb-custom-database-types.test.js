@@ -15,7 +15,7 @@ const CustomStore = async ({ OpLog, Database, ipfs, identity, address, name, acc
   }
 }
 
-describe('Add a custom database type', function () {
+describe('OrbitDB - Add a custom database type', function () {
   this.timeout(5000)
 
   let ipfs
