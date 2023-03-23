@@ -16,7 +16,6 @@ describe('OrbitDB - Write Permissions', function () {
   let orbitdb1, orbitdb2
 
   before(async () => {
-    rmrf.sync(dbPath)
     ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
     ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
     await connectPeers(ipfs1, ipfs2)
@@ -26,12 +25,25 @@ describe('OrbitDB - Write Permissions', function () {
   })
 
   after(async () => {
-    if (orbitdb1) { await orbitdb1.stop() }
+    if (orbitdb1) {
+      await orbitdb1.stop()
+    }
 
-    if (orbitdb2) { await orbitdb2.stop() }
+    if (orbitdb2) {
+      await orbitdb2.stop()
+    }
 
-    if (ipfs1) { await ipfs1.stop() }
-    if (ipfs2) { await ipfs2.stop() }
+    if (ipfs1) {
+      await ipfs1.stop()
+    }
+
+    if (ipfs2) {
+      await ipfs2.stop()
+    }
+
+    await rmrf('./orbitdb')
+    await rmrf('./ipfs1')
+    await rmrf('./ipfs2')
   })
 
   it('throws an error if a peer writes to a log with default write access', async () => {
