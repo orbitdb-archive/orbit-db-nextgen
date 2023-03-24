@@ -7,7 +7,7 @@ import IPFSAccessController from '../../src/access-controllers/ipfs.js'
 import config from '../config.js'
 import connectPeers from '../utils/connect-nodes.js'
 
-describe('OrbitDB - IPFSAccessController', function () {
+describe('IPFSAccessController', function () {
   const dbPath1 = './orbitdb/tests/ipfs-access-controller/1'
   const dbPath2 = './orbitdb/tests/ipfs-access-controller/2'
 
@@ -69,7 +69,7 @@ describe('OrbitDB - IPFSAccessController', function () {
     deepStrictEqual(accessController.write, [testIdentity1.id])
   })
 
-  it('allows owner to append', async () => {
+  it('user with write access can append', async () => {
     const mockEntry = {
       identity: testIdentity1.hash,
       v: 1
@@ -79,6 +79,17 @@ describe('OrbitDB - IPFSAccessController', function () {
     const canAppend = await accessController.canAppend(mockEntry)
     strictEqual(canAppend, true)
   })
+  
+  it('user without write cannot append', async () => {
+    const mockEntry = {
+      identity: testIdentity2.hash,
+      v: 1
+      // ...
+      // doesn't matter what we put here, only identity is used for the check
+    }
+    const canAppend = await accessController.canAppend(mockEntry)
+    strictEqual(canAppend, false)
+  })  
 
   it('replicates the access controller', async () => {
     const replicatedAccessController = await IPFSAccessController({

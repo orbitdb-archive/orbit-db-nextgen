@@ -4,7 +4,7 @@ import * as IPFS from 'ipfs'
 import { OrbitDB } from '../src/index.js'
 import config from './config.js'
 
-describe('OrbitDB - Drop databases', function () {
+describe('Drop databases', function () {
   this.timeout(5000)
 
   let ipfs
