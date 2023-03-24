@@ -127,12 +127,12 @@ describe('orbit-db - Multiple Databases', function () {
   afterEach(async () => {
     for (const db of remoteDatabases) {
       await db.drop()
-      // await db.close()
+      await db.close()
     }
 
     for (const db of localDatabases) {
       await db.drop()
-      // await db.close()
+      await db.close()
     }
   })
 
