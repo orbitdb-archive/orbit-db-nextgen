@@ -87,15 +87,15 @@ describe('orbit-db - Multiple Databases', function () {
       orbitdb2.identity.publicKey
     ]
 
-    let connected1 = false
-    let connected2 = false
+    let connected1Count = 0
+    let connected2Count = 0
 
     const onConnected1 = async (peerId, heads) => {
-      connected1 = true
+      ++connected1Count
     }
 
     const onConnected2 = async (peerId, heads) => {
-      connected2 = true
+      ++connected2Count
     }
 
     console.log('Creating databases and waiting for peers to connect')
@@ -118,8 +118,8 @@ describe('orbit-db - Multiple Databases', function () {
     }
 
     // Wait for the peers to connect
-    await waitFor(() => connected1, () => true)
-    await waitFor(() => connected2, () => true)
+    await waitFor(() => connected1Count === 3, () => true)
+    await waitFor(() => connected2Count === 3, () => true)
 
     console.log('Peers connected')
   })
