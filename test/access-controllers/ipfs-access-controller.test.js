@@ -79,7 +79,7 @@ describe('IPFSAccessController', function () {
     const canAppend = await accessController.canAppend(mockEntry)
     strictEqual(canAppend, true)
   })
-  
+
   it('user without write cannot append', async () => {
     const mockEntry = {
       identity: testIdentity2.hash,
@@ -89,7 +89,7 @@ describe('IPFSAccessController', function () {
     }
     const canAppend = await accessController.canAppend(mockEntry)
     strictEqual(canAppend, false)
-  })  
+  })
 
   it('replicates the access controller', async () => {
     const replicatedAccessController = await IPFSAccessController({
