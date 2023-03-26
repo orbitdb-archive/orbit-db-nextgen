@@ -47,4 +47,4 @@ const IPFSAccessController = async ({ ipfs, identities, identity, address, stora
   }
 }
 
-export { IPFSAccessController as default }
+export default IPFSAccessController
