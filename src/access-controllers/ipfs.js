@@ -5,24 +5,12 @@ import { IPFSBlockStorage } from '../storage/index.js'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
-import { base58btc } from 'multiformats/bases/base58'
+import AccessControllerManifest from './manifest.js'
 
 const codec = dagCbor
 const hasher = sha256
-const hashStringEncoding = base58btc
 
 const type = 'ipfs'
-
-const AccessControllerManifest = async ({ storage, type, params }) => {
-  const manifest = {
-    type,
-    ...params
-  }
-  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
-  const hash = cid.toString(hashStringEncoding)
-  await storage.put(hash, bytes)
-  return hash
-}
 
 const IPFSAccessController = async ({ ipfs, identities, identity, address, storage, write }) => {
   storage = storage || await IPFSBlockStorage({ ipfs, pin: true })

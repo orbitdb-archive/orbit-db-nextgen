@@ -1,33 +1,21 @@
-// import * as io from 'orbit-db-io'
+import * as Block from 'multiformats/block'
+import * as dagCbor from '@ipld/dag-cbor'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { base58btc } from 'multiformats/bases/base58'
 
-// export default class AccessControllerManifest {
-//   constructor (type, params = {}) {
-//     this.type = type
-//     this.params = params
-//   }
+const codec = dagCbor
+const hasher = sha256
+const hashStringEncoding = base58btc
 
-//   static async resolve (ipfs, manifestHash, options = {}) {
-//     if (options.skipManifest) {
-//       if (!options.type) {
-//         throw new Error('No manifest, access-controller type required')
-//       }
-//       return new AccessControllerManifest(options.type, { address: manifestHash })
-//     } else {
-//       // TODO: ensure this is a valid multihash
-//       if (manifestHash.indexOf('/ipfs') === 0) { manifestHash = manifestHash.split('/')[2] }
-//       const { type, params } = await io.read(ipfs, manifestHash)
-//       return new AccessControllerManifest(type, params)
-//     }
-//   }
+const AccessControllerManifest = async ({ storage, type, params }) => {
+  const manifest = {
+    type,
+    ...params
+  }
+  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
+  const hash = cid.toString(hashStringEncoding)
+  await storage.put(hash, bytes)
+  return hash
+}
 
-//   static async create (ipfs, type, params) {
-//     if (params.skipManifest) {
-//       return params.address
-//     }
-//     const manifest = {
-//       type,
-//       params
-//     }
-//     return io.write(ipfs, 'dag-cbor', manifest)
-//   }
-// }
+export default AccessControllerManifest
