@@ -142,7 +142,7 @@ describe('Sync protocol', function () {
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        log2.joinEntry(syncedHead)
+        await log2.joinEntry(syncedHead)
         syncedEventFired = true
       }
 
@@ -349,7 +349,7 @@ describe('Sync protocol', function () {
 
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
-        if (expectedEntry) {
+        if (expectedEntry && !syncedEventFired) {
           syncedEventFired = expectedEntry.hash === syncedHead.hash
         }
       }
