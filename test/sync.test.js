@@ -122,6 +122,7 @@ describe('Sync protocol', function () {
     let sync1, sync2
     let log1, log2
     let joinEventFired = false
+    let syncedEventFired = false
     let syncedHead
     let expectedEntry
 
@@ -142,6 +143,7 @@ describe('Sync protocol', function () {
       const onSynced = async (bytes) => {
         syncedHead = await Entry.decode(bytes)
         await log2.joinEntry(syncedHead)
+        syncedEventFired = true
       }
 
       const onJoin = (peerId, heads) => {
@@ -155,6 +157,7 @@ describe('Sync protocol', function () {
       sync1.events.on('join', onJoin)
 
       await waitFor(() => joinEventFired, () => true)
+      await waitFor(() => syncedEventFired, () => true)
     })
 
     after(async () => {
@@ -179,9 +182,9 @@ describe('Sync protocol', function () {
       await sync1.add(await log1.append('hello2'))
       await sync1.add(await log1.append('hello3'))
       await sync1.add(await log1.append('hello4'))
-      expectedEntry = await log1.append('hello5')
+      const expected = await log1.append('hello5')
 
-      await sync1.add(expectedEntry)
+      await sync1.add(expected)
 
       await waitFor(() => Entry.isEqual(expected, syncedHead), () => true)
 
