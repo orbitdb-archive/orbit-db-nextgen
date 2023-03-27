@@ -1,5 +1,6 @@
-import assert from 'assert'
+import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
+import Path from 'path'
 import OrbitDB from '../../src/OrbitDB.js'
 import * as IPFS from 'ipfs'
 import Keystore from '../../src/key-store.js'
@@ -62,34 +63,39 @@ describe('OrbitDBAccessController', function () {
     let accessController
 
     before(async () => {
-      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1 })
+      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1,  })
     })
 
     it('creates an access controller', () => {
-      assert.notStrictEqual(accessController, null)
-      assert.notStrictEqual(accessController, undefined)
+      notStrictEqual(accessController, null)
+      notStrictEqual(accessController, undefined)
     })
 
     it('sets the controller type', () => {
-      assert.strictEqual(accessController.type, 'orbitdb')
+      strictEqual(accessController.type, 'orbitdb')
     })
+    
+    it('ensures address is access controller compliant', () => {
+      strictEqual(accessController.address, 'default-access-controller/_access')
+    })
+    
     //
     // it('has OrbitDB instance', async () => {
-    //   assert.notStrictEqual(accessController.orbitdb, null)
-    //   assert.strictEqual(accessController.orbitdb.id, orbitdb1.id)
+    //   notStrictEqual(accessController.orbitdb, null)
+    //   strictEqual(accessController.orbitdb.id, orbitdb1.id)
     // })
     //
     // it('has IPFS instance', async () => {
     //   const peerId1 = await accessController._orbitdb._ipfs.id()
     //   const peerId2 = await ipfs1.id()
-    //   assert.strictEqual(String(peerId1.id), String(peerId2.id))
+    //   strictEqual(String(peerId1.id), String(peerId2.id))
     // })
 
     it('sets default capabilities', async () => {
       const expected = []
       expected.admin = new Set([testIdentity1.id])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('allows owner to append after creation', async () => {
@@ -99,7 +105,7 @@ describe('OrbitDBAccessController', function () {
         // doesn't matter what we put here, only identity is used for the check
       }
       const canAppend = await accessController.canAppend(mockEntry)
-      assert.strictEqual(canAppend, true)
+      strictEqual(canAppend, true)
     })
   })
 
@@ -111,8 +117,8 @@ describe('OrbitDBAccessController', function () {
     })
 
     // it('loads the root access controller from IPFS', () => {
-    //   assert.strictEqual(accessController._db.access.type, 'ipfs')
-    //   assert.deepStrictEqual(accessController._db.access.write, [id1.id])
+    //   strictEqual(accessController._db.access.type, 'ipfs')
+    //   deepStrictEqual(accessController._db.access.write, [id1.id])
     // })
 
     it('adds a capability', async () => {
@@ -125,7 +131,7 @@ describe('OrbitDBAccessController', function () {
       const expected = []
       expected.admin = new Set([testIdentity1.id])
       expected.write = new Set([testIdentity1.id])
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('adds more capabilities', async () => {
@@ -133,7 +139,7 @@ describe('OrbitDBAccessController', function () {
         await accessController.grant('read', 'ABCD')
         await accessController.grant('delete', 'ABCD')
       } catch (e) {
-        assert.strictEqual(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
@@ -142,7 +148,7 @@ describe('OrbitDBAccessController', function () {
       expected.read = new Set(['ABCD'])
       expected.delete = new Set(['ABCD'])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('emit \'update\' event when a capability was added', async () => {
@@ -155,7 +161,7 @@ describe('OrbitDBAccessController', function () {
 
       await accessController.grant('read', 'AXES')
 
-      assert.strictEqual(update, true)
+      strictEqual(update, true)
     })
 
     it('can append after acquiring capability', async () => {
@@ -179,8 +185,8 @@ describe('OrbitDBAccessController', function () {
       const accessController2 = await OrbitDBAccessController({ orbitdb: orbitdb2, identities: identities2, address: 'testdb/add' })
       const canAppend2 = await accessController2.canAppend(mockEntry2)
 
-      assert.strictEqual(canAppend1, true)
-      assert.strictEqual(canAppend2, true)
+      strictEqual(canAppend1, true)
+      strictEqual(canAppend2, true)
     })
   })
 
@@ -197,40 +203,40 @@ describe('OrbitDBAccessController', function () {
         await accessController.grant('write', 'AABB')
         await accessController.revoke('write', 'AABB')
       } catch (e) {
-        assert.strictEqual(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
       expected.admin = new Set([testIdentity1.id])
       expected.write = new Set([testIdentity1.id])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('can remove the creator\'s write access', async () => {
       try {
         await accessController.revoke('write', testIdentity1.id)
       } catch (e) {
-        assert.strictEqual(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
       expected.admin = new Set([testIdentity1.id])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('can\'t remove the creator\'s admin access', async () => {
       try {
         await accessController.revoke('admin', testIdentity1.id)
       } catch (e) {
-        assert.strictEqual(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
       expected.admin = new Set([testIdentity1.id])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('removes more capabilities', async () => {
@@ -241,7 +247,7 @@ describe('OrbitDBAccessController', function () {
         await accessController.revoke('read', 'ABCDE')
         await accessController.revoke('delete', 'ABCDE')
       } catch (e) {
-        assert.strictEqual(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
@@ -250,7 +256,7 @@ describe('OrbitDBAccessController', function () {
       expected.read = new Set(['ABCD'])
       expected.delete = new Set(['ABCD'])
 
-      assert.deepStrictEqual(await accessController.capabilities(), expected)
+      deepStrictEqual(await accessController.capabilities(), expected)
     })
 
     it('can\'t append after revoking capability', async () => {
@@ -268,8 +274,8 @@ describe('OrbitDBAccessController', function () {
       }
       const canAppend = await accessController.canAppend(mockEntry1)
       const noAppend = await accessController.canAppend(mockEntry2)
-      assert.strictEqual(canAppend, true)
-      assert.strictEqual(noAppend, false)
+      strictEqual(canAppend, true)
+      strictEqual(noAppend, false)
     })
 
     it('emits \'update\' event when a capability was removed', async () => {
@@ -285,7 +291,7 @@ describe('OrbitDBAccessController', function () {
 
       await accessController.revoke('admin', 'cats')
 
-      assert.strictEqual(update, true)
+      strictEqual(update, true)
     })
   })
 
@@ -313,14 +319,14 @@ describe('OrbitDBAccessController', function () {
   //
   //   it('has the correct database address for the internal db', async () => {
   //     const addr = accessController._db.address.toString().split('/')
-  //     assert.strictEqual(addr[addr.length - 1], '_access')
-  //     assert.strictEqual(addr[addr.length - 2], dbName)
+  //     strictEqual(addr[addr.length - 1], '_access')
+  //     strictEqual(addr[addr.length - 2], dbName)
   //   })
   //
   //   it('has correct capabilities', async () => {
-  //     assert.deepStrictEqual(accessController.get('admin'), new Set([id1.id]))
-  //     assert.deepStrictEqual(accessController.get('write'), new Set(['A', 'B', 'C']))
-  //     assert.deepStrictEqual(accessController.get('another'), new Set(['BB']))
+  //     deepStrictEqual(accessController.get('admin'), new Set([id1.id]))
+  //     deepStrictEqual(accessController.get('write'), new Set(['A', 'B', 'C']))
+  //     deepStrictEqual(accessController.get('another'), new Set(['BB']))
   //   })
   // })
 })

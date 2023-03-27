@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events'
-
+import ensureACAddress from '../utils/ensure-ac-address.js'
 const type = 'orbitdb'
 
 const OrbitDBAccessController = async ({ orbitdb, identities, address, write }) => {
   const events = new EventEmitter()
 
-  address = address || 'default-access-controller'
+  address = ensureACAddress(address || 'default-access-controller')
   write = write || [orbitdb.identity.id]
   // Force '<address>/_access' naming for the database
   const db = await orbitdb.open(address, {
@@ -32,7 +32,8 @@ const OrbitDBAccessController = async ({ orbitdb, identities, address, write }) 
 
     const { id } = writerIdentity
     // If the ACL contains the writer's public key or it contains '*'
-    if (await hasCapability('write', id) || await hasCapability('write', '*') || await hasCapability('admin', id) || await hasCapability('admin', '*')) {
+    const hasWriteAccess = await hasCapability('write', id) || await hasCapability('admin', id)
+    if (hasWriteAccess) {
       return identities.verifyIdentity(writerIdentity)
     }
 
