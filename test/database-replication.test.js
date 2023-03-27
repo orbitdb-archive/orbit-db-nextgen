@@ -87,10 +87,11 @@ describe('Database - Replication', function () {
       let expectedEntryHash = null
 
       const onConnected = (peerId, heads) => {
-        replicated = expectedEntryHash && heads.map(e => e.hash).includes(expectedEntryHash)
+        replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
       }
+
       const onUpdate = (entry) => {
-        replicated = expectedEntryHash && entry.hash === expectedEntryHash
+        replicated = expectedEntryHash !== null && entry.hash === expectedEntryHash
       }
 
       db2.events.on('join', onConnected)

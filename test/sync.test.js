@@ -481,6 +481,51 @@ describe('Sync protocol', function () {
     })
   })
 
+  describe('Timeouts', () => {
+    let sync1, sync2
+    let log1, log2
+
+    const timeoutTime = 1 // 1 millisecond
+
+    before(async () => {
+      log1 = await Log(testIdentity1, { logId: 'synclog5' })
+      log2 = await Log(testIdentity2, { logId: 'synclog5' })
+
+      sync1 = await Sync({ ipfs: ipfs1, log: log1, timeout: timeoutTime })
+      sync2 = await Sync({ ipfs: ipfs2, log: log2, start: false, timeout: timeoutTime })
+
+      await log1.append('hello1')
+    })
+
+    after(async () => {
+      if (sync1) {
+        await sync1.stop()
+      }
+      if (sync2) {
+        await sync2.stop()
+      }
+    })
+
+    it('emits an error when connecting to peer was cancelled due to timeout', async () => {
+      let err = null
+
+      const onError = (error) => {
+        err = error
+      }
+
+      sync1.events.on('error', onError)
+      sync2.events.on('error', onError)
+
+      await sync2.start()
+
+      await waitFor(() => err !== null, () => true)
+
+      notStrictEqual(err, null)
+      strictEqual(err.type, 'aborted')
+      strictEqual(err.message, 'The operation was aborted')
+    })
+  })
+
   describe('Events', () => {
     let sync1, sync2
     let joinEventFired = false
