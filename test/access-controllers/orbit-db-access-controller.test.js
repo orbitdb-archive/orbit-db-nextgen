@@ -1,6 +1,5 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
-import Path from 'path'
 import OrbitDB from '../../src/OrbitDB.js'
 import * as IPFS from 'ipfs'
 import Keystore from '../../src/key-store.js'
@@ -63,7 +62,7 @@ describe('OrbitDBAccessController', function () {
     let accessController
 
     before(async () => {
-      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1,  })
+      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1 })
     })
 
     it('creates an access controller', () => {
@@ -74,11 +73,11 @@ describe('OrbitDBAccessController', function () {
     it('sets the controller type', () => {
       strictEqual(accessController.type, 'orbitdb')
     })
-    
+
     it('ensures address is access controller compliant', () => {
       strictEqual(accessController.address, 'default-access-controller/_access')
     })
-    
+
     //
     // it('has OrbitDB instance', async () => {
     //   notStrictEqual(accessController.orbitdb, null)
@@ -125,7 +124,7 @@ describe('OrbitDBAccessController', function () {
       try {
         await accessController.grant('write', testIdentity1.id)
       } catch (e) {
-        assert(e, null)
+        strictEqual(e, null)
       }
 
       const expected = []
@@ -169,7 +168,7 @@ describe('OrbitDBAccessController', function () {
         await accessController.grant('write', testIdentity1.id)
         await accessController.grant('write', testIdentity2.id)
       } catch (e) {
-        assert(e, null)
+        strictEqual(e, null)
       }
 
       const mockEntry1 = {
@@ -264,7 +263,7 @@ describe('OrbitDBAccessController', function () {
         await accessController.grant('write', testIdentity2.id)
         await accessController.revoke('write', testIdentity2.id)
       } catch (e) {
-        assert(e, null)
+        strictEqual(e, null)
       }
       const mockEntry1 = {
         identity: testIdentity1.hash
