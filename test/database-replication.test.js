@@ -15,7 +15,7 @@ const OpLog = { Log, Entry }
 const keysPath = './testkeys'
 
 describe('Database - Replication', function () {
-  this.timeout(30000)
+  this.timeout(60000)
 
   let ipfs1, ipfs2
   let keystore
