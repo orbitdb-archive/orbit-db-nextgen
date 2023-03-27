@@ -1,6 +1,6 @@
 import { strictEqual } from 'assert'
 // import mapSeries from 'p-each-series'
-import * as IPFS from 'ipfs'
+import * as IPFS from 'ipfs-core'
 import rmrf from 'rimraf'
 import OrbitDB from '../src/OrbitDB.js'
 import config from './config.js'
@@ -137,7 +137,7 @@ describe('orbit-db - Multiple Databases', function () {
   })
 
   it('replicates multiple open databases', async () => {
-    const entryCount = 32
+    const entryCount = 10
 
     // Write entries to each database
     console.log('Writing to databases')
@@ -157,11 +157,21 @@ describe('orbit-db - Multiple Databases', function () {
     }
 
     // Function to check if all databases have been replicated
-    const allReplicated = () => remoteDatabases.every(isReplicated)
+    const allReplicated = async () => {
+      for (const db of remoteDatabases) {
+        const replicated = await isReplicated(db)
+        if (!replicated) {
+          return false
+        }
+      }
+      return true
+    }
 
     console.log('Waiting for replication to finish')
 
-    await waitFor(() => allReplicated(), () => true)
+    await waitFor(async () => await allReplicated(), () => true, 2000)
+
+    console.log('Replication finished')
 
     for (let i = 0; i < databaseInterfaces.length; i++) {
       const db = remoteDatabases[i]

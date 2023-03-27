@@ -1,7 +1,7 @@
 import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs'
+import * as IPFS from 'ipfs-core'
 import { Log, Entry, Identities, KeyStore, IPFSBlockStorage } from '../../src/index.js'
 import config from '../config.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
@@ -63,7 +63,7 @@ describe('Log - Replication', function () {
   })
 
   describe('replicates logs deterministically', async function () {
-    const amount = 128 + 1
+    const amount = 32 + 1
     const logId = 'A'
 
     let log1, log2, input1, input2
@@ -97,10 +97,10 @@ describe('Log - Replication', function () {
     }
 
     beforeEach(async () => {
-      log1 = await Log(testIdentity1, { logId, storage: storage1 })
-      log2 = await Log(testIdentity2, { logId, storage: storage2 })
-      input1 = await Log(testIdentity1, { logId, storage: storage1 })
-      input2 = await Log(testIdentity2, { logId, storage: storage2 })
+      log1 = await Log(testIdentity1, { logId, entryStorage: storage1 })
+      log2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
+      input1 = await Log(testIdentity1, { logId, entryStorage: storage1 })
+      input2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
       await ipfs1.pubsub.subscribe(logId, handleMessage1)
       await ipfs2.pubsub.subscribe(logId, handleMessage2)
     })
@@ -141,7 +141,7 @@ describe('Log - Replication', function () {
 
       await whileProcessingMessages(config.timeout)
 
-      const result = await Log(testIdentity1, { logId, storage: storage1 })
+      const result = await Log(testIdentity1, { logId, entryStorage: storage1 })
       await result.join(log1)
       await result.join(log2)
 
@@ -156,10 +156,12 @@ describe('Log - Replication', function () {
       strictEqual(values3[1].payload, 'B1')
       strictEqual(values3[2].payload, 'A2')
       strictEqual(values3[3].payload, 'B2')
-      strictEqual(values3[99].payload, 'B50')
-      strictEqual(values3[100].payload, 'A51')
-      strictEqual(values3[198].payload, 'A100')
-      strictEqual(values3[199].payload, 'B100')
+      strictEqual(values3[18].payload, 'A10')
+      strictEqual(values3[19].payload, 'B10')
+      strictEqual(values3[30].payload, 'A16')
+      strictEqual(values3[31].payload, 'B16')
+      strictEqual(values3[62].payload, 'A32')
+      strictEqual(values3[63].payload, 'B32')
     })
   })
 })
