@@ -1,14 +1,23 @@
-// import * as io from '../utils/index.js'
-// import AccessController from './interface.js'
-// import AccessControllerManifest from './manifest.js'
 import { IPFSBlockStorage } from '../storage/index.js'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
-import AccessControllerManifest from './manifest.js'
+import { base58btc } from 'multiformats/bases/base58'
 
 const codec = dagCbor
 const hasher = sha256
+const hashStringEncoding = base58btc
+
+const AccessControlList = async ({ storage, type, params }) => {
+  const manifest = {
+    type,
+    ...params
+  }
+  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
+  const hash = cid.toString(hashStringEncoding)
+  await storage.put(hash, bytes)
+  return hash
+}
 
 const type = 'ipfs'
 
@@ -22,7 +31,7 @@ const IPFSAccessController = async ({ ipfs, identities, identity, address, stora
     const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
     write = value.write
   } else {
-    address = await AccessControllerManifest({ storage, type, params: { write } })
+    address = await AccessControlList({ storage, type, params: { write } })
   }
 
   const canAppend = async (entry) => {
