@@ -24,16 +24,14 @@ describe('Manifest', () => {
 
   it('creates a manifest', async () => {
     const name = 'manifest'
-    const type = 'manifest-test'
-    const accessController = '123'
-    const expectedHash = 'zdpuAtUvd7EhN9Xu2KSCxkjG1oS1SN6EnnZ8sxvJMPiJhbQWF'
+    const accessController = 'test/default-access-controller'
+    const expectedHash = 'zdpuAmS2rAbTFfKBukPEUXnem5nkQSmEH5e1zsSZTG8pdkV7j'
     const expectedManifest = {
       name,
-      type,
-      accessController: path.join('/ipfs', accessController)
+      accessController
     }
 
-    const { hash, manifest } = await Manifest(storage, name, type, accessController)
+    const { hash, manifest } = await Manifest({ storage, name, accessController })
 
     strictEqual(hash, expectedHash)
     deepStrictEqual(manifest, expectedManifest)
@@ -41,12 +39,11 @@ describe('Manifest', () => {
 
   it('creates a manifest with metadata', async () => {
     const name = 'manifest'
-    const type = 'manifest-test'
-    const accessController = '123'
-    const expectedHash = 'zdpuAmNAMNnzKJ2kWgo4H42ZDG7nFCSGEWtV76UvL5dWrNweQ'
-    const meta = { name, type, description: 'more information about the database' }
+    const accessController = 'test/default-access-controller'
+    const expectedHash = 'zdpuAvctUdeVL2zZWHegzQA7ADMJCPzYyhcKfhHqYcHuEXEwR'
+    const meta = { name, description: 'more information about the database' }
 
-    const { hash, manifest } = await Manifest(storage, name, type, accessController, { meta })
+    const { hash, manifest } = await Manifest({ storage, name, accessController, meta })
 
     strictEqual(hash, expectedHash)
     deepStrictEqual(manifest.meta, meta)
@@ -56,7 +53,7 @@ describe('Manifest', () => {
     let err
 
     try {
-      await Manifest()
+      await Manifest({})
     } catch (e) {
       err = e.toString()
     }
@@ -68,7 +65,7 @@ describe('Manifest', () => {
     let err
 
     try {
-      await Manifest(storage)
+      await Manifest({ storage })
     } catch (e) {
       err = e.toString()
     }
@@ -76,27 +73,15 @@ describe('Manifest', () => {
     strictEqual(err, 'Error: name is required')
   })
 
-  it('throws an error if type is not specified', async () => {
+  it('throws an error if address is not specified', async () => {
     let err
 
     try {
-      await Manifest(storage, 'manifest')
+      await Manifest({ storage, name: 'manifest' })
     } catch (e) {
       err = e.toString()
     }
 
-    strictEqual(err, 'Error: type is required')
-  })
-
-  it('throws an error if accessControllerAddress is not specified', async () => {
-    let err
-
-    try {
-      await Manifest(storage, 'manifest', 'manifest-test')
-    } catch (e) {
-      err = e.toString()
-    }
-
-    strictEqual(err, 'Error: accessControllerAddress is required')
+    strictEqual(err, 'Error: accessController is required')
   })
 })
