@@ -1,70 +1,73 @@
-import AccessController from './interface.js'
-import AccessControllerManifest from './manifest.js'
-// import LegacyIPFSAccessController from './access-controllers/legacy-ipfs.js'
 import IPFSAccessController from './ipfs.js'
-// import OrbitDBAccessController from './orbitdb.js'
+import OrbitDBAccessController from './orbitdb.js'
 
 const supportedTypes = {
-  // 'legacy-ipfs': LegacyIPFSAccessController,
-  ipfs: IPFSAccessController
-  // orbitdb: OrbitDBAccessController
+  ipfs: IPFSAccessController,
+  orbitdb: OrbitDBAccessController
 }
 
 const getHandlerFor = (type) => {
-  if (!AccessControllers.isSupported(type)) {
+  if (!isSupported(type)) {
     throw new Error(`AccessController type '${type}' is not supported`)
   }
   return supportedTypes[type]
 }
 
-export default class AccessControllers {
-  static get AccessController () { return AccessController }
+const isSupported = type => {
+  return Object.keys(supportedTypes).includes(type)
+}
 
-  static isSupported (type) {
-    return Object.keys(supportedTypes).includes(type)
+const addAccessController = options => {
+  if (!options.AccessController) {
+    throw new Error('AccessController class needs to be given as an option')
   }
 
-  static addAccessController (options) {
-    if (!options.AccessController) {
-      throw new Error('AccessController class needs to be given as an option')
-    }
-
-    if (!options.AccessController.type ||
+  if (!options.AccessController.type ||
       typeof options.AccessController.type !== 'string') {
-      throw new Error('Given AccessController class needs to implement: static get type() { /* return a string */}.')
-    }
-
-    supportedTypes[options.AccessController.type] = options.AccessController
+    throw new Error('Given AccessController class needs to implement: static get type() { /* return a string */}.')
   }
 
-  static addAccessControllers (options) {
-    const accessControllers = options.AccessControllers
-    if (!accessControllers) {
-      throw new Error('AccessController classes need to be given as an option')
-    }
+  supportedTypes[options.AccessController.type] = options.AccessController
+}
 
-    accessControllers.forEach((accessController) => {
-      AccessControllers.addAccessController({ AccessController: accessController })
-    })
-  }
+// const addAccessControllers = options => {
+//   const accessControllers = options.AccessControllers
+//   if (!accessControllers) {
+//     throw new Error('AccessController classes need to be given as an option')
+//   }
+//
+//   accessControllers.forEach((accessController) => {
+//     addAccessController({ AccessController: accessController })
+//   })
+// }
 
-  static removeAccessController (type) {
-    delete supportedTypes[type]
-  }
+const removeAccessController = type => {
+  delete supportedTypes[type]
+}
 
-  static async resolve (orbitdb, manifestAddress, options = {}) {
-    const { type, params } = await AccessControllerManifest.resolve(orbitdb._ipfs, manifestAddress, options)
-    const AccessController = getHandlerFor(type)
-    const accessController = await AccessController.create(orbitdb, Object.assign({}, options, params))
-    await accessController.load(params.address)
-    return accessController
-  }
+// const resolve = async (orbitdb, manifestAddress, options = {}) => {
+//   const { type, params } = await AccessControllerManifest.resolve(orbitdb._ipfs, manifestAddress, options)
+//   const AccessController = getHandlerFor(type)
+//   const accessController = await AccessController.create(orbitdb, Object.assign({}, options, params))
+//   await accessController.load(params.address)
+//   return accessController
+// }
+//
+// const create = async ({ ipfs, identity }, type, options = {}) => {
+//   const AccessController = getHandlerFor(type)
+//   const ac = await AccessController.create({ ipfs, identity }, options)
+//   const params = await ac.save()
+//   const hash = await AccessControllerManifest.create(ipfs, type, params)
+//   return hash
+// }
 
-  static async create ({ ipfs, identity }, type, options = {}) {
-    const AccessController = getHandlerFor(type)
-    const ac = await AccessController.create({ ipfs, identity }, options)
-    const params = await ac.save()
-    const hash = await AccessControllerManifest.create(ipfs, type, params)
-    return hash
-  }
+export {
+  supportedTypes,
+  getHandlerFor,
+  isSupported,
+  addAccessController,
+  // addAccessControllers,
+  removeAccessController
+  // resolve,
+  // create
 }

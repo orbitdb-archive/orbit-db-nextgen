@@ -1,5 +1,4 @@
 import { strictEqual, deepStrictEqual } from 'assert'
-import path from 'path'
 import rmrf from 'rimraf'
 import * as IPFS from 'ipfs-core'
 import Manifest from '../src/manifest.js'

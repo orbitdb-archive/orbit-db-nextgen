@@ -5,10 +5,11 @@ const type = 'orbitdb'
 const OrbitDBAccessController = async ({ orbitdb, identities, address, write }) => {
   const events = new EventEmitter()
 
-  address = ensureACAddress(address || 'default-access-controller')
+  address = address || 'default-access-controller'
   write = write || [orbitdb.identity.id]
+
   // Force '<address>/_access' naming for the database
-  const db = await orbitdb.open(address, {
+  const db = await orbitdb.open(ensureACAddress(address), {
     type: 'keyvalue',
     // use ipfs controller as a immutable "root controller"
     accessController: {
@@ -16,6 +17,8 @@ const OrbitDBAccessController = async ({ orbitdb, identities, address, write }) 
       write
     }
   })
+
+  address = db.address
 
   const onUpdate = (entry) => {
     events.emit('update', entry)

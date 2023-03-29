@@ -9,14 +9,16 @@ const hasher = sha256
 const hashStringEncoding = base58btc
 
 // Creates a DB manifest file and saves it in IPFS
-export default async ({ storage, name, accessController, meta }) => {
+export default async ({ storage, name, type, accessController, meta }) => {
   if (!storage) throw new Error('storage is required')
   if (!name) throw new Error('name is required')
+  if (!type) throw new Error('type is required')
   if (!accessController) throw new Error('accessController is required')
 
   const manifest = Object.assign(
     {
       name,
+      type,
       accessController: (path.posix || path).join(accessController)
     },
     // meta field is only added to manifest if meta parameter is defined

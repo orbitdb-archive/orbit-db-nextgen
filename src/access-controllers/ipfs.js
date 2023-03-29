@@ -3,6 +3,7 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { base58btc } from 'multiformats/bases/base58'
+import path from 'path'
 
 const codec = dagCbor
 const hasher = sha256
@@ -32,6 +33,7 @@ const IPFSAccessController = async ({ ipfs, identities, identity, address, stora
     write = value.write
   } else {
     address = await AccessControlList({ storage, type, params: { write } })
+    address = path.join('/', type, address)
   }
 
   const canAppend = async (entry) => {
