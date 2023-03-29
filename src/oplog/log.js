@@ -125,7 +125,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    * @param {data} data Payload to add to the entry
    * @return {Promise<Entry>} Entry that was appended
    */
-  const append = async (data, options = { pointerCount: 0 }) => {
+  const append = async (data, options = { referencesCount: 0 }) => {
     // 1. Prepare entry
     // 2. Authorize entry
     // 3. Store entry
@@ -134,10 +134,10 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
     const heads_ = await heads()
     // Get references (we skip the heads which are covered by the next field)
     let refs = []
-    for await (const { hash } of iterator({ amount: options.pointerCount + heads_.length })) {
+    for await (const { hash } of iterator({ amount: options.referencesCount + heads_.length })) {
       refs.push(hash)
     }
-    refs = refs.slice(heads_.length, options.pointerCount + heads_.length)
+    refs = refs.slice(heads_.length, options.referencesCount + heads_.length)
     // Create the next pointers from heads
     const nexts = heads_.map(entry => entry.hash)
     // Create the entry
