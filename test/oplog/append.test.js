@@ -110,8 +110,12 @@ describe('Log - Append', function () {
       })
 
       it('added the correct amount of refs pointers', async () => {
-        values.forEach((entry, index) => {
-          strictEqual(entry.refs.length, index > 0 ? Math.floor(Math.log2(Math.min(nextPointerAmount, index))) : 0)
+        values.reverse().forEach((entry, index) => {
+          index = values.length - index - 1
+          const expectedRefCount = index < nextPointerAmount
+            ? Math.max(0, index - 1)
+            : Math.max(0, Math.min(nextPointerAmount, index - 1))
+          strictEqual(entry.refs.length, expectedRefCount)
         })
       })
     })

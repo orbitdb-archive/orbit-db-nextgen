@@ -4,7 +4,7 @@ import Path from 'path'
 import Sync from './sync.js'
 import { ComposedStorage, LRUStorage, IPFSBlockStorage, LevelStorage } from './storage/index.js'
 
-const defaultPointerCount = 0
+const defaultPointerCount = 16
 const defaultCacheSize = 1000
 
 const Database = async ({ OpLog, ipfs, identity, address, name, accessController, directory, meta, headsStorage, entryStorage, indexStorage, pointerCount, syncAutomatically }) => {
