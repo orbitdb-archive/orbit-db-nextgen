@@ -1,24 +1,18 @@
 import { EventEmitter } from 'events'
 import ensureACAddress from '../utils/ensure-ac-address.js'
+
 const type = 'orbitdb'
 
-const OrbitDBAccessController = async ({ orbitdb, identities, address, write }) => {
+const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities, address }) => {
   const events = new EventEmitter()
 
   address = address || 'default-access-controller'
   write = write || [orbitdb.identity.id]
 
   // Force '<address>/_access' naming for the database
-  const db = await orbitdb.open(ensureACAddress(address), {
-    type: 'keyvalue',
-    // use ipfs controller as a immutable "root controller"
-    accessController: {
-      type: 'ipfs',
-      write
-    }
-  })
+  const db = await orbitdb.open(ensureACAddress(address), { type: 'keyvalue' })
 
-  address = db.address
+  address = db.address.replaceAll('/orbitdb/', '')
 
   const onUpdate = (entry) => {
     events.emit('update', entry)

@@ -88,7 +88,8 @@ const Database = async ({ OpLog, ipfs, identity, address, name, accessController
     log,
     sync,
     peers: sync.peers,
-    events
+    events,
+    accessController
   }
 }
 

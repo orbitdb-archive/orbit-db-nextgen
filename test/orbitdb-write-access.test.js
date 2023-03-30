@@ -6,6 +6,8 @@ import OrbitDB from '../src/OrbitDB.js'
 import config from './config.js'
 import waitFor from './utils/wait-for.js'
 import connectPeers from './utils/connect-nodes.js'
+import IPFSAccessController from '../src/access-controllers/ipfs.js'
+import OrbitDBAccessController from '../src/access-controllers/orbitdb.js'
 
 const dbPath = './orbitdb/tests/write-permissions'
 
@@ -87,7 +89,7 @@ describe('Write Permissions', function () {
       ++updateCount
     }
 
-    const db1 = await orbitdb1.open('write-test', { accessController: { write: ['*'] } })
+    const db1 = await orbitdb1.open('write-test', { AccessController: IPFSAccessController({ write: ['*'] }) })
     const db2 = await orbitdb2.open(db1.address)
 
     db2.events.on('join', onConnected)
@@ -111,13 +113,13 @@ describe('Write Permissions', function () {
     let updateCount = 0
 
     const options = {
-      accessController: {
+      AccessController: IPFSAccessController({
       // Set write access for both clients
         write: [
           orbitdb1.identity.id,
           orbitdb2.identity.id
         ]
-      }
+      })
     }
     const onConnected = async (peerId, heads) => {
       connected = true
@@ -151,11 +153,11 @@ describe('Write Permissions', function () {
     let connected = false
 
     const options = {
-      accessController: {
+      AccessController: IPFSAccessController({
         write: [
           orbitdb1.identity.id
         ]
-      }
+      })
     }
 
     const onConnected = async (peerId, heads) => {
@@ -195,13 +197,16 @@ describe('Write Permissions', function () {
       ++updateCount
     }
 
-    const db1 = await orbitdb1.open('write-test', { accessController: { type: 'orbitdb', orbitdb: orbitdb1, write: ['*'] } })
-    const db2 = await orbitdb2.open(db1.address, { accessController: { orbitdb: orbitdb2, write: ['*'] } })
+    const db1 = await orbitdb1.open('write-test', { AccessController: OrbitDBAccessController() })
+    const db2 = await orbitdb2.open(db1.address, { AccessController: OrbitDBAccessController() })
 
     db2.events.on('join', onConnected)
     db2.events.on('update', onUpdate)
 
     await waitFor(() => connected, () => true)
+
+    await db1.accessController.grant('write', db2.identity.id)
+    await db2.accessController.grant('write', db1.identity.id)
 
     await db1.add('record 1')
     await db2.add('record 2')

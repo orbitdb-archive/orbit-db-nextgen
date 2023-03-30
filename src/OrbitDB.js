@@ -13,6 +13,7 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as AccessControllers from './access-controllers/index.js'
+import IPFSAccessController from './access-controllers/ipfs.js'
 
 const codec = dagCbor
 const hasher = sha256
@@ -57,11 +58,13 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
 
   let databases = {}
 
-  const open = async (address, { type, meta, accessController, sync, Store } = {}) => {
-    let acType = accessController && accessController.type ? accessController.type : 'ipfs'
-    const acParams = { ipfs, identities, identity, storage: manifestStorage, ...(accessController || {}) }
-    let name, manifest, ac
+  const testId = async (identities, identity) => {
+    console.log('start')
+    console.log('testId', await identities.getIdentity(identity.hash))
+  }
 
+  const open = async (address, { type, meta, sync, Store, AccessController } = {}) => {
+    let name, manifest, accessController
     if (type && !databaseTypes[type]) {
       throw new Error(`Unsupported database type: '${type}'`)
     }
@@ -76,21 +79,22 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
       const bytes = await manifestStorage.get(addr.path)
       const { value } = await Block.decode({ bytes, codec, hasher })
       manifest = value
-      acType = manifest.accessController.split(path.sep, 2).pop()
+      const acType = manifest.accessController.split('/', 2).pop()
       const acAddress = manifest.accessController.replaceAll(`/${acType}/`, '')
-      ac = await AccessControllers.getHandlerFor(acType)({ ...acParams, type: acType, address: acAddress })
+      accessController = await AccessControllers.getHandlerFor(acType)()({ orbitdb: { open, identity, ipfs }, identities, address: acAddress })
       name = manifest.name
       type = type || manifest.type
       meta = manifest.meta
     } else {
       // If the address given was not valid, eg. just the name of the database
       type = type || 'events'
-      ac = await AccessControllers.getHandlerFor(acType)(acParams)
-      const m = await DBManifest({ storage: manifestStorage, name: address, type, accessController: ac.address, meta })
+      AccessController = AccessController || IPFSAccessController({ storage: manifestStorage })
+      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities })
+      const m = await DBManifest({ storage: manifestStorage, name: address, type, accessController: pathJoin('/', accessController.type, accessController.address), meta })
 
       manifest = m.manifest
       address = OrbitDBAddress(m.hash)
-      ac = m.accessController
+      // accessController = manifest.accessController
       name = manifest.name
       meta = manifest.meta
     }
@@ -101,7 +105,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
       throw new Error(`Unsupported database type: '${type}'`)
     }
 
-    const db = await DatabaseModel({ OpLog, Database, ipfs, identity, address: address.toString(), name, accessController: ac, directory, meta, syncAutomatically: sync != null ? sync : true })
+    const db = await DatabaseModel({ OpLog, Database, ipfs, identity, address: address.toString(), name, accessController, directory, meta, syncAutomatically: sync != null ? sync : true })
 
     db.events.on('close', onDatabaseClosed(address.toString()))
 
@@ -131,7 +135,8 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
     directory,
     keystore,
     identity,
-    peerId
+    peerId,
+    testId
   }
 }
 

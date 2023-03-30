@@ -38,6 +38,7 @@ describe('Open databases', function () {
     let db
 
     before(async () => {
+      console.log('open')
       orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: './orbitdb1' })
       db = await orbitdb1.open('helloworld')
     })

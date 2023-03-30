@@ -1,4 +1,3 @@
-import pathJoin from './utils/path-join.js'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -19,7 +18,7 @@ export default async ({ storage, name, type, accessController, meta }) => {
     {
       name,
       type,
-      accessController: pathJoin('/ipfs', accessController)
+      accessController
     },
     // meta field is only added to manifest if meta parameter is defined
     meta !== undefined ? { meta } : {}

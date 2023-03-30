@@ -26,14 +26,14 @@ describe('OrbitDBAccessController', function () {
     const keystore1 = await Keystore({ path: dbPath1 + '/keys' })
     const keystore2 = await Keystore({ path: dbPath2 + '/keys' })
 
-    identities1 = await Identities({ keystore: keystore1 })
-    identities2 = await Identities({ keystore: keystore2 })
+    identities1 = await Identities({ ipfs: ipfs1, keystore: keystore1 })
+    identities2 = await Identities({ ipfs: ipfs2, keystore: keystore2 })
 
     testIdentity1 = await identities1.createIdentity({ id: 'userA' })
     testIdentity2 = await identities2.createIdentity({ id: 'userB' })
 
-    orbitdb1 = await OrbitDB({ ipfs: ipfs1, identity: testIdentity1, directory: dbPath1 })
-    orbitdb2 = await OrbitDB({ ipfs: ipfs2, identity: testIdentity2, directory: dbPath2 })
+    orbitdb1 = await OrbitDB({ ipfs: ipfs1, identity: testIdentity1, directory: dbPath1, keystore: keystore1 })
+    orbitdb2 = await OrbitDB({ ipfs: ipfs2, identity: testIdentity2, directory: dbPath2, keystore: keystore2 })
   })
 
   after(async () => {
@@ -58,11 +58,11 @@ describe('OrbitDBAccessController', function () {
     await rmrf('./ipfs2')
   })
 
-  describe('Constructor', function () {
+  describe('Default write access', function () {
     let accessController
 
     before(async () => {
-      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1 })
+      accessController = await OrbitDBAccessController()({ orbitdb: orbitdb1, identities: identities1 })
     })
 
     it('creates an access controller', () => {
@@ -73,22 +73,6 @@ describe('OrbitDBAccessController', function () {
     it('sets the controller type', () => {
       strictEqual(accessController.type, 'orbitdb')
     })
-
-    it('ensures address is access controller compliant', () => {
-      strictEqual(accessController.address, 'default-access-controller/_access')
-    })
-
-    //
-    // it('has OrbitDB instance', async () => {
-    //   notStrictEqual(accessController.orbitdb, null)
-    //   strictEqual(accessController.orbitdb.id, orbitdb1.id)
-    // })
-    //
-    // it('has IPFS instance', async () => {
-    //   const peerId1 = await accessController._orbitdb._ipfs.id()
-    //   const peerId2 = await ipfs1.id()
-    //   strictEqual(String(peerId1.id), String(peerId2.id))
-    // })
 
     it('sets default capabilities', async () => {
       const expected = []
@@ -112,13 +96,8 @@ describe('OrbitDBAccessController', function () {
     let accessController
 
     before(async () => {
-      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1, address: 'testdb/add' })
+      accessController = await OrbitDBAccessController()({ orbitdb: orbitdb1, identities: identities1, address: 'testdb/add' })
     })
-
-    // it('loads the root access controller from IPFS', () => {
-    //   strictEqual(accessController._db.access.type, 'ipfs')
-    //   deepStrictEqual(accessController._db.access.write, [id1.id])
-    // })
 
     it('adds a capability', async () => {
       try {
@@ -181,7 +160,7 @@ describe('OrbitDBAccessController', function () {
 
       const canAppend1 = await accessController.canAppend(mockEntry1)
 
-      const accessController2 = await OrbitDBAccessController({ orbitdb: orbitdb2, identities: identities2, address: 'testdb/add' })
+      const accessController2 = await OrbitDBAccessController()({ orbitdb: orbitdb2, identities: identities2, address: 'testdb/add' })
       const canAppend2 = await accessController2.canAppend(mockEntry2)
 
       strictEqual(canAppend1, true)
@@ -193,7 +172,7 @@ describe('OrbitDBAccessController', function () {
     let accessController
 
     before(async () => {
-      accessController = await OrbitDBAccessController({ orbitdb: orbitdb1, identities: identities1, address: 'testdb/remove' })
+      accessController = await OrbitDBAccessController()({ orbitdb: orbitdb1, identities: identities1, address: 'testdb/remove' })
     })
 
     it('removes a capability', async () => {
@@ -293,41 +272,6 @@ describe('OrbitDBAccessController', function () {
       strictEqual(update, true)
     })
   })
-
-  // describe('save and load', function () {
-  //   let accessController, dbName
-  //
-  //   before(async () => {
-  //     dbName = 'testdb-load-' + new Date().getTime()
-  //     accessController = new OrbitDBAccessController(orbitdb1)
-  //     await accessController.load(dbName)
-  //     await accessController.grant('write', 'A')
-  //     await accessController.grant('write', 'B')
-  //     await accessController.grant('write', 'C')
-  //     await accessController.grant('write', 'C') // double entry
-  //     await accessController.grant('another', 'AA')
-  //     await accessController.grant('another', 'BB')
-  //     await accessController.revoke('another', 'AA')
-  //     await accessController.grant('admin', id1.id)
-  //     return new Promise((resolve) => {
-  //       // Test that the access controller emits 'updated' after it was loaded
-  //       accessController.on('updated', () => resolve())
-  //       accessController.load(accessController.address)
-  //     })
-  //   })
-  //
-  //   it('has the correct database address for the internal db', async () => {
-  //     const addr = accessController._db.address.toString().split('/')
-  //     strictEqual(addr[addr.length - 1], '_access')
-  //     strictEqual(addr[addr.length - 2], dbName)
-  //   })
-  //
-  //   it('has correct capabilities', async () => {
-  //     deepStrictEqual(accessController.get('admin'), new Set([id1.id]))
-  //     deepStrictEqual(accessController.get('write'), new Set(['A', 'B', 'C']))
-  //     deepStrictEqual(accessController.get('another'), new Set(['BB']))
-  //   })
-  // })
 })
 // TODO: use two separate peers for testing the AC
 // TODO: add tests for revocation correctness with a database (integration tests)

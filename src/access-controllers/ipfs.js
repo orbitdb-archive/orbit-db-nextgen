@@ -3,7 +3,6 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { base58btc } from 'multiformats/bases/base58'
-import path from 'path'
 
 const codec = dagCbor
 const hasher = sha256
@@ -22,10 +21,9 @@ const AccessControlList = async ({ storage, type, params }) => {
 
 const type = 'ipfs'
 
-const IPFSAccessController = async ({ ipfs, identities, identity, address, storage, write }) => {
-  storage = storage || await IPFSBlockStorage({ ipfs, pin: true })
-
-  write = write || [identity.id]
+const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address }) => {
+  storage = storage || await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+  write = write || [orbitdb.identity.id]
 
   if (address) {
     const manifestBytes = await storage.get(address)
@@ -33,7 +31,6 @@ const IPFSAccessController = async ({ ipfs, identities, identity, address, stora
     write = value.write
   } else {
     address = await AccessControlList({ storage, type, params: { write } })
-    address = path.join('/', type, address)
   }
 
   const canAppend = async (entry) => {
