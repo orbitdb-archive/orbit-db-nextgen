@@ -205,8 +205,8 @@ describe('Write Permissions', function () {
 
     await waitFor(() => connected, () => true)
 
-    await db1.accessController.grant('write', db2.identity.id)
-    await db2.accessController.grant('write', db1.identity.id)
+    await db1.access.grant('write', db2.identity.id)
+    await db2.access.grant('write', db1.identity.id)
 
     await db1.add('record 1')
     await db2.add('record 2')
