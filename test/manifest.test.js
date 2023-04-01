@@ -23,14 +23,16 @@ describe('Manifest', () => {
 
   it('creates a manifest', async () => {
     const name = 'manifest'
+    const type = 'manifest'
     const accessController = 'test/default-access-controller'
-    const expectedHash = 'zdpuAmS2rAbTFfKBukPEUXnem5nkQSmEH5e1zsSZTG8pdkV7j'
+    const expectedHash = 'zdpuAx3LaygjPHa2zsUmRoR4jQPm2WYrExsvz2gncfm62aRKv'
     const expectedManifest = {
       name,
+      type,
       accessController
     }
 
-    const { hash, manifest } = await Manifest({ storage, name, accessController })
+    const { hash, manifest } = await Manifest({ storage, name, type, accessController })
 
     strictEqual(hash, expectedHash)
     deepStrictEqual(manifest, expectedManifest)
@@ -38,11 +40,12 @@ describe('Manifest', () => {
 
   it('creates a manifest with metadata', async () => {
     const name = 'manifest'
+    const type = 'manifest'
     const accessController = 'test/default-access-controller'
-    const expectedHash = 'zdpuAvctUdeVL2zZWHegzQA7ADMJCPzYyhcKfhHqYcHuEXEwR'
+    const expectedHash = 'zdpuAmegd2PpDfTQRVhGiATCkWQDvp3JygT9WksWgJkG2u313'
     const meta = { name, description: 'more information about the database' }
 
-    const { hash, manifest } = await Manifest({ storage, name, accessController, meta })
+    const { hash, manifest } = await Manifest({ storage, name, type,  accessController, meta })
 
     strictEqual(hash, expectedHash)
     deepStrictEqual(manifest.meta, meta)
@@ -71,12 +74,24 @@ describe('Manifest', () => {
 
     strictEqual(err, 'Error: name is required')
   })
+  
+    it('throws an error if type is not specified', async () => {
+      let err
 
-  it('throws an error if address is not specified', async () => {
+      try {
+        await Manifest({ storage, name: 'manifest' })
+      } catch (e) {
+        err = e.toString()
+      }
+
+      strictEqual(err, 'Error: type is required')
+    })  
+
+  it('throws an error if accessController is not specified', async () => {
     let err
 
     try {
-      await Manifest({ storage, name: 'manifest' })
+      await Manifest({ storage, name: 'manifest', type: 'manifest' })
     } catch (e) {
       err = e.toString()
     }
