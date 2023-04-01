@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events'
 import ensureACAddress from '../utils/ensure-ac-address.js'
+import IPFSAccessController from './ipfs.js'
 
 const type = 'orbitdb'
 
@@ -10,7 +11,7 @@ const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities
   write = write || [orbitdb.identity.id]
 
   // Force '<address>/_access' naming for the database
-  const db = await orbitdb.open(ensureACAddress(address), { type: 'keyvalue' })
+  const db = await orbitdb.open(ensureACAddress(address), { type: 'keyvalue', AccessController: IPFSAccessController({ write }) })
 
   address = db.address.replaceAll('/orbitdb/', '')
 
