@@ -3,6 +3,7 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { base58btc } from 'multiformats/bases/base58'
+import pathJoin from '../utils/path-join.js'
 
 const codec = dagCbor
 const hasher = sha256
@@ -26,11 +27,12 @@ const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, iden
   write = write || [orbitdb.identity.id]
 
   if (address) {
-    const manifestBytes = await storage.get(address)
+    const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
     const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
     write = value.write
   } else {
     address = await AccessControlList({ storage, type, params: { write } })
+    address = pathJoin('/', type, address)
   }
 
   const canAppend = async (entry) => {

@@ -90,7 +90,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
       type = type || 'events'
       AccessController = AccessController || IPFSAccessController({ storage: manifestStorage })
       accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities })
-      const m = await DBManifest({ storage: manifestStorage, name: address, type, accessController: pathJoin('/', accessController.type, accessController.address), meta })
+      const m = await DBManifest({ storage: manifestStorage, name: address, type, accessController: accessController.address, meta })
 
       manifest = m.manifest
       address = OrbitDBAddress(m.hash)

@@ -12,8 +12,7 @@ const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities
 
   // Force '<address>/_access' naming for the database
   const db = await orbitdb.open(ensureACAddress(address), { type: 'keyvalue', AccessController: IPFSAccessController({ write }) })
-
-  address = db.address.replaceAll('/orbitdb/', '')
+  address = db.address
 
   const onUpdate = (entry) => {
     events.emit('update', entry)
