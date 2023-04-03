@@ -29,7 +29,7 @@ const Database = async ({ OpLog, ipfs, identity, address, name, access, director
     await LevelStorage({ path: pathJoin(directory, '/log/_index/') })
   )
 
-  const log = await Log(identity, { logId: address, access: access, entryStorage, headsStorage, indexStorage })
+  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage })
 
   const events = new EventEmitter()
   const queue = new PQueue({ concurrency: 1 })

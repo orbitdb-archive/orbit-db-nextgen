@@ -45,7 +45,7 @@ describe('Manifest', () => {
     const expectedHash = 'zdpuAmegd2PpDfTQRVhGiATCkWQDvp3JygT9WksWgJkG2u313'
     const meta = { name, description: 'more information about the database' }
 
-    const { hash, manifest } = await Manifest({ storage, name, type,  accessController, meta })
+    const { hash, manifest } = await Manifest({ storage, name, type, accessController, meta })
 
     strictEqual(hash, expectedHash)
     deepStrictEqual(manifest.meta, meta)
@@ -74,18 +74,18 @@ describe('Manifest', () => {
 
     strictEqual(err, 'Error: name is required')
   })
-  
-    it('throws an error if type is not specified', async () => {
-      let err
 
-      try {
-        await Manifest({ storage, name: 'manifest' })
-      } catch (e) {
-        err = e.toString()
-      }
+  it('throws an error if type is not specified', async () => {
+    let err
 
-      strictEqual(err, 'Error: type is required')
-    })  
+    try {
+      await Manifest({ storage, name: 'manifest' })
+    } catch (e) {
+      err = e.toString()
+    }
+
+    strictEqual(err, 'Error: type is required')
+  })
 
   it('throws an error if accessController is not specified', async () => {
     let err
