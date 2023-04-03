@@ -1,7 +1,7 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import OrbitDB from '../../src/OrbitDB.js'
-import * as IPFS from 'ipfs'
+import * as IPFS from 'ipfs-core'
 import Keystore from '../../src/key-store.js'
 import Identities from '../../src/identities/identities.js'
 import OrbitDBAccessController from '../../src/access-controllers/orbitdb.js'
