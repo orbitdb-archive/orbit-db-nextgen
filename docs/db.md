@@ -111,3 +111,51 @@ orbitdb2 = await OrbitDB({ ipfs: ipfs2, id: 'user2', directory: './orbitdb2' })
 const db1 = await orbitdb1.open('my-db')
 const db2 = await orbitdb2.open(db1.address)
 ```
+
+## Building a custom database
+
+OrbitDB can be extended to use custom or third party data stores. To implement a custom database, ensure the Database object is extended and that the OrbitDB database interface is implement. The database will also require a unique type.
+
+```
+const CustomStore = async ({ OpLog, Database, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically, indexBy = '_id' }) => {
+  const database = await Database({ OpLog, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically })
+
+  const { addOperation, log } = database
+
+  /**
+   * Puts an item to the underlying database. You will probably want to call 
+   * Database's addOperation here with an op code 'PUT'.
+   */
+  const put = async (doc) => {
+  }
+
+  /**
+   * Deletes an item from the underlying database. You will probably want to
+   * call Database's addOperation here with an op code 'DEL'.
+   */
+  const del = async (key) => {
+  }
+
+  /**
+   * Gets an item from the underlying database. Use a hash or key to retrieve 
+   * the value.
+   */
+  const get = async (key) => {
+  }
+
+  /**
+   * Iterates over the data set.
+   */
+  const iterator = async function * ({ amount } = {}) {
+  }
+
+  return {
+    ...database,
+    type: 'customstore',
+    put,
+    del,
+    get,
+    iterator
+  }
+}
+```
