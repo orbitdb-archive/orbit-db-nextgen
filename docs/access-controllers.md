@@ -13,6 +13,8 @@ const db = orbitdb.open('my-db', { AccessController: SomeAccessController() })
 
 OrbitDB is bundled with two AccessControllers; IPFSAccessController, an immutable access controller which uses IPFS to store the access settings, and OrbitDBAccessController, a mutable access controller which uses OrbitDB's keyvalue database to store one or more permissions.
 
+## IPFS Access Controller
+
 By default, the database `db` will use the IPFSAccessController and allow only the creator to write to the database.
 
 ```
@@ -20,14 +22,15 @@ const orbitdb = await OrbitDB()
 const db = orbitdb.open('my-db')
 ```
 
-To change write access, pass the IPFSAccessController with the `write ` parameter and an array of one or more user addresses:
+To change write access, pass the IPFSAccessController with the `write ` parameter and an array of one or more Identity ids:
 
 ```
-const user1Address = '123'
-const user2Address = '456'
+const identities = await Identities()
+const identity1 = identities.createIdentity('userA')
+const identity2 = identities.createIdentity('userB')
 
 const orbitdb = await OrbitDB()
-const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write: [user1Address, user2Address]) })
+const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write: [identity1.id, identity2.id]) })
 ```
 
 To allow anyone to write to the database, specify the wildcard '*':
@@ -42,17 +45,18 @@ const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write:
 The OrbitDB access controller is provides configurable write access using grant and revoke.
 
 ```
-const user1Address = '123'
-const user2Address = '456'
+const identities = await Identities()
+const identity1 = identities.createIdentity('userA')
+const identity2 = identities.createIdentity('userB')
 
 const orbitdb = await OrbitDB()
-const db = orbitdb.open('my-db', { AccessController: OrbitDBAccessController(write: [user1Address]) })
+const db = orbitdb.open('my-db', { AccessController: OrbitDBAccessController(write: [identity1.id]) })
 
-db.access.grant('write', user2Address)
-db.access.revoke('write', user2Address)
+db.access.grant('write', identity2.id)
+db.access.revoke('write', identity2.id)
 ```
 
-Grant and revoke are not limited to 'write' access only. A custom access capability can be specified, for example, `db.access.grant('custom-access', user1Address)`.
+Grant and revoke are not limited to 'write' access only. A custom access capability can be specified, for example, `db.access.grant('custom-access', identity1.id)`.
 
 ## Custom Access Controller
 
