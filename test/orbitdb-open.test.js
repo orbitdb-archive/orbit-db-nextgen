@@ -3,8 +3,8 @@ import rmrf from 'rimraf'
 import fs from 'fs'
 import path from 'path'
 import * as IPFS from 'ipfs-core'
-import { OrbitDB, isValidAddress } from '../src/index.js'
-import { KeyValuePersisted } from '../src/db/index.js'
+import { OrbitDB, isValidAddress, LevelStorage } from '../src/index.js'
+import { KeyValueIndexed } from '../src/db/index.js'
 import config from './config.js'
 import connectPeers from './utils/connect-nodes.js'
 import waitFor from './utils/wait-for.js'
@@ -105,12 +105,7 @@ describe('Open databases', function () {
     })
 
     it('has a type that equals the database type', async () => {
-      strictEqual(db.type, 'eventstore')
-    })
-
-    it('has a put function', async () => {
-      notStrictEqual(db.put, undefined)
-      strictEqual(typeof db.put, 'function')
+      strictEqual(db.type, 'events')
     })
 
     it('has a add function', async () => {
@@ -199,7 +194,7 @@ describe('Open databases', function () {
     it('returns all entries in the database', async () => {
       db = await orbitdb1.open('helloworld')
 
-      strictEqual(db.type, 'eventstore')
+      strictEqual(db.type, 'events')
       strictEqual(db.name, 'helloworld')
 
       const expected = []
@@ -250,7 +245,7 @@ describe('Open databases', function () {
     it('returns all entries in the database', async () => {
       db = await orbitdb2.open(address)
 
-      strictEqual(db.type, 'eventstore')
+      strictEqual(db.type, 'events')
       strictEqual(db.name, 'helloworld2')
 
       const expected = []
@@ -381,7 +376,7 @@ describe('Open databases', function () {
       address = db.address
 
       for (let i = 0; i < amount; i++) {
-        await db.put('hello' + i, 'hello' + i)
+        await db.put('key' + i, 'hello' + i)
       }
 
       await db.close()
@@ -405,7 +400,7 @@ describe('Open databases', function () {
 
       const expected = []
       for (let i = 0; i < amount; i++) {
-        expected.push({ key: 'hello' + i, value: 'hello' + i })
+        expected.push({ key: 'key' + i, value: 'hello' + i })
       }
 
       const all = []
@@ -415,21 +410,59 @@ describe('Open databases', function () {
 
       deepStrictEqual(all, expected)
     })
+  })
 
-    it('opens the database with a custom Store - KeyValuePersisted', async () => {
+  describe('opening an indexed keyvalue database', () => {
+    let storage
+    let db, address
+
+    const amount = 10
+
+    before(async () => {
+      orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1' })
+      db = await orbitdb1.open('helloworld', { type: 'keyvalue' })
+      address = db.address
+
+      for (let i = 0; i < amount; i++) {
+        await db.put('key' + i, 'hello' + i)
+      }
+
+      await db.close()
+    })
+
+    after(async () => {
+      if (storage) {
+        await storage.close()
+      }
       if (db) {
         await db.close()
       }
+      if (orbitdb1) {
+        await orbitdb1.stop()
+      }
+      await rmrf('./index')
+      await rmrf('./orbitdb')
+    })
 
-      db = await orbitdb1.open(address, { Store: KeyValuePersisted })
+    it('returns all entries in the database and in the index', async () => {
+      storage = await LevelStorage({ path: './index', valueEncoding: 'json' })
+      db = await orbitdb1.open(address, { Database: KeyValueIndexed({ storage }) })
 
+      strictEqual(db.address, address)
       strictEqual(db.type, 'keyvalue')
       strictEqual(db.name, 'helloworld')
 
       const expected = []
       for (let i = 0; i < amount; i++) {
-        expected.push({ key: 'hello' + i, value: 'hello' + i })
+        expected.push({ key: 'key' + i, value: 'hello' + i })
       }
+
+      const result = []
+      for await (const [key, value] of storage.iterator()) {
+        result.push({ key, value })
+      }
+
+      deepStrictEqual(result, expected)
 
       const all = []
       for await (const { key, value } of db.iterator()) {
@@ -470,7 +503,7 @@ describe('Open databases', function () {
     it('returns all entries in the database', async () => {
       db = await orbitdb1.open(address)
 
-      strictEqual(db.type, 'documentstore')
+      strictEqual(db.type, 'documents')
       strictEqual(db.name, 'helloworld')
 
       const expected = []
