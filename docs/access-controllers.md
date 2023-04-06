@@ -41,6 +41,19 @@ const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write:
 
 The OrbitDB access controller is provides configurable write access using grant and revoke.
 
+```
+const user1Address = '123'
+const user2Address = '456'
+
+const orbitdb = await OrbitDB()
+const db = orbitdb.open('my-db', { AccessController: OrbitDBAccessController(write: [user1Address]) })
+
+db.access.grant('write', user2Address)
+db.access.revoke('write', user2Address)
+```
+
+Grant and revoke are not limited to 'write' access only. A custom access capability can be specified, for example, `db.access.grant('custom-access', user1Address)`.
+
 ## Custom Access Controller
 
 Access can be customized by implementing a custom access controller. To implement a custom access controller, specify:
