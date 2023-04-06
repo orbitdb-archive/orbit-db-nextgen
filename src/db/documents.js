@@ -1,5 +1,9 @@
-const DocumentStore = async ({ OpLog, Database, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically, indexBy = '_id' }) => {
-  const database = await Database({ OpLog, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically })
+import Database from '../database.js'
+
+const DefaultOptions = { indexBy: '_id' }
+
+const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
+  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically })
 
   const { addOperation, log } = database
 
@@ -90,7 +94,7 @@ const DocumentStore = async ({ OpLog, Database, ipfs, identity, address, name, a
 
   return {
     ...database,
-    type: 'documentstore',
+    type: 'documents',
     put,
     del,
     get,
@@ -101,4 +105,4 @@ const DocumentStore = async ({ OpLog, Database, ipfs, identity, address, name, a
   }
 }
 
-export default DocumentStore
+export default Documents
