@@ -27,7 +27,7 @@ const orbitdb = await OrbitDB()
 await orbitdb.open('my-db')
 ```
 
-Opening a documentstore database:
+Opening a documents database:
 
 ```
 const orbitdb = await OrbitDB()

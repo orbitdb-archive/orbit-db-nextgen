@@ -1,8 +1,8 @@
 # Identities
 
-An identity is a signed identifier or "id" and can be used for signing and verifying various data. Within OrbitDB, the identity object is used for signing log entries and verifying write access to a database.
+An identity is a cryptographically signed identifier or "id" and can be used to sign and verify various data. Within OrbitDB, the main objective of an identity is verify write access to a database's log and, if allowed, to sign each entry as it is added to the log.
 
-Identities provides a way to manage one or more identities and includes functions for creating, retrieving, signing and verifying an identity as well as signing and verifying messages using an existing identity.
+Identities provides methods to manage one or more identities and includes functionality for creating, retrieving, signing and verifying an identity as well as signing and verifying messages using an existing identity.
 
 ## Creating an identity
 
