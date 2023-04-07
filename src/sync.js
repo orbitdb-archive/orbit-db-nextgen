@@ -1,6 +1,5 @@
 import { pipe } from 'it-pipe'
 import PQueue from 'p-queue'
-import { EventEmitter } from 'events'
 import { TimeoutController } from 'timeout-abort-controller'
 import pathJoin from './utils/path-join.js'
 
@@ -33,8 +32,8 @@ const DefaultTimeout = 30000 // 30 seconds
  * @param {Object} params One or more parameters for configuring Sync.
  * @param {IPFS} params.ipfs An IPFS instance. Used for synchronizing peers.
  * @param {Log} params.log The Log instance to sync.
- * @param {Object} params.events An event emitter. Defaults to an instance of
- * EventEmitter. Events emitted are 'join', 'error' and 'leave'.
+ * @param {Object} params.events An event target. Defaults to an instance of
+ * EventTarget. Events emitted are 'join', 'error' and 'leave'.
  * @param {Function} params.onSynced A function that is called after the peer
  * has received heads from another peer.
  * @param {Boolean} params.start True if sync should start automatically, false
@@ -51,14 +50,14 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
   const queue = new PQueue({ concurrency: 1 })
   const peers = new Set()
 
-  events = events || new EventEmitter()
+  events = events || new EventTarget()
   timeout = timeout || DefaultTimeout
 
   let started = false
 
   const onPeerJoined = async (peerId) => {
     const heads = await log.heads()
-    events.emit('join', peerId, heads)
+    events.dispatchEvent(new CustomEvent('join', { detail: { peerId, heads } }))
   }
 
   const sendHeads = async (source) => {
@@ -87,7 +86,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
       await pipe(stream, receiveHeads(peerId), sendHeads, stream)
     } catch (e) {
       peers.delete(peerId)
-      events.emit('error', e)
+      events.dispatchEvent(new CustomEvent('error', { detail: e }))
     }
   }
 
@@ -114,7 +113,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
             // Skip peer, they don't have this database currently
           } else {
             peers.delete(peerId)
-            events.emit('error', e)
+            events.dispatchEvent(new CustomEvent('error', { detail: e }))
           }
         } finally {
           if (timeoutController) {
@@ -123,7 +122,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
         }
       } else {
         peers.delete(peerId)
-        events.emit('leave', peerId)
+        events.dispatchEvent(new CustomEvent('leave', { detail: peerId }))
       }
     }
     queue.add(task)
@@ -139,7 +138,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
           await onSynced(message.data)
         }
       } catch (e) {
-        events.emit('error', e)
+        events.dispatchEvent(new CustomEvent('error', { detail: e }))
       }
     }
     queue.add(task)

@@ -148,7 +148,7 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onJoin = (peerId, heads) => {
+      const onJoin = () => {
         joinEventFired = true
       }
 
@@ -157,8 +157,8 @@ describe('Sync protocol', function () {
       sync1 = await Sync({ ipfs: ipfs1, log: log1, onSynced: () => {} })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      sync1.events.on('join', onJoin)
-      sync2.events.on('join', onJoin)
+      sync1.events.addEventListener('join', onJoin)
+      sync2.events.addEventListener('join', onJoin)
 
       await waitFor(() => joinEventFired, () => true)
       await waitFor(() => syncedEventFired, () => true)
@@ -210,15 +210,15 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onJoin = (peerId, heads) => {
+      const onJoin = () => {
         joinEventFired = true
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1, onSynced: () => {} })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      sync1.events.on('join', onJoin)
-      sync2.events.on('join', onJoin)
+      sync1.events.addEventListener('join', onJoin)
+      sync2.events.addEventListener('join', onJoin)
 
       await waitFor(() => joinEventFired, () => true)
     })
@@ -339,15 +339,15 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onLeave = (peerId) => {
+      const onLeave = (event) => {
         leaveEventFired = true
-        leavingPeerId = peerId
+        leavingPeerId = event.detail
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      sync1.events.on('leave', onLeave)
+      sync1.events.addEventListener('leave', onLeave)
 
       await sync1.add(await log1.append('hello1'))
       await sync1.add(await log1.append('hello2'))
@@ -419,14 +419,14 @@ describe('Sync protocol', function () {
         }
       }
 
-      const onLeave = (peerId) => {
+      const onLeave = () => {
         leaveEventFired = true
       }
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1 })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
 
-      sync2.events.on('leave', onLeave)
+      sync2.events.addEventListener('leave', onLeave)
 
       await sync1.add(await log1.append('hello1'))
       await sync1.add(await log1.append('hello2'))
@@ -573,12 +573,12 @@ describe('Sync protocol', function () {
     it('emits an error when connecting to peer was cancelled due to timeout', async () => {
       let err = null
 
-      const onError = (error) => {
-        err = error
+      const onError = (event) => {
+        err = event.detail
       }
 
-      sync1.events.on('error', onError)
-      sync2.events.on('error', onError)
+      sync1.events.addEventListener('error', onError)
+      sync2.events.addEventListener('error', onError)
 
       await sync2.start()
 
@@ -604,33 +604,33 @@ describe('Sync protocol', function () {
       const log1 = await Log(testIdentity1, { logId: 'synclog3' })
       const log2 = await Log(testIdentity2, { logId: 'synclog3' })
 
-      const onJoin = (peerId, heads) => {
+      const onJoin = (event) => {
         joinEventFired = true
-        joiningPeerId = peerId
-        receivedHeads = heads
+        joiningPeerId = event.detail.peerId
+        receivedHeads = event.detail.heads
       }
 
-      const onLeave = (peerId) => {
+      const onLeave = (event) => {
         leaveEventFired = true
-        leavingPeerId = peerId
+        leavingPeerId = event.detail
       }
 
-      const onError = (e) => {
+      const onError = (event) => {
         errorEventFired = true
-        err = e.toString()
+        err = event.detail.toString()
       }
 
       const onSynced = (bytes) => {
-        sync2.events.emit('error', new Error('Sync Error'))
+        sync2.events.dispatchEvent(new CustomEvent('error', { detail: new Error('Sync Error') }))
       }
 
       await log1.append('hello!')
 
       sync1 = await Sync({ ipfs: ipfs1, log: log1, onSynced })
       sync2 = await Sync({ ipfs: ipfs2, log: log2, onSynced })
-      sync1.events.on('join', onJoin)
-      sync1.events.on('leave', onLeave)
-      sync2.events.on('error', onError)
+      sync1.events.addEventListener('join', onJoin)
+      sync1.events.addEventListener('leave', onLeave)
+      sync2.events.addEventListener('error', onError)
 
       await waitFor(() => joinEventFired, () => true)
       await waitFor(() => errorEventFired, () => true)

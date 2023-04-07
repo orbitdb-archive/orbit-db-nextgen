@@ -90,11 +90,11 @@ describe('orbit-db - Multiple Databases', function () {
     let connected1Count = 0
     let connected2Count = 0
 
-    const onConnected1 = async (peerId, heads) => {
+    const onConnected1 = () => {
       ++connected1Count
     }
 
-    const onConnected2 = async (peerId, heads) => {
+    const onConnected2 = () => {
       ++connected2Count
     }
 
@@ -106,14 +106,14 @@ describe('orbit-db - Multiple Databases', function () {
     // Open the databases on the first node
     for (const dbInterface of databaseInterfaces) {
       const db = await dbInterface.open(orbitdb1, dbInterface.name, options)
-      db.events.on('join', onConnected1)
+      db.events.addEventListener('join', onConnected1)
       localDatabases.push(db)
     }
 
     for (const [index, dbInterface] of databaseInterfaces.entries()) {
       const address = localDatabases[index].address.toString()
       const db = await dbInterface.open(orbitdb2, address, options)
-      db.events.on('join', onConnected2)
+      db.events.addEventListener('join', onConnected2)
       remoteDatabases.push(db)
     }
 

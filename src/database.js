@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events'
 import PQueue from 'p-queue'
 import Sync from './sync.js'
 import { Log, Entry } from './oplog/index.js'
@@ -30,7 +29,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
 
   const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage })
 
-  const events = new EventEmitter()
+  const events = new EventTarget()
   const queue = new PQueue({ concurrency: 1 })
 
   const addOperation = async (op) => {
@@ -40,7 +39,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
       if (onUpdate) {
         await onUpdate(log, entry)
       }
-      events.emit('update', entry)
+      events.dispatchEvent(new CustomEvent('update', { detail: entry }))
       return entry.hash
     }
     const hash = await queue.add(task)
@@ -57,7 +56,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
           if (onUpdate) {
             await onUpdate(log, entry)
           }
-          events.emit('update', entry)
+          events.dispatchEvent(new CustomEvent('update', { detail: entry }))
         }
       }
     }
@@ -68,13 +67,13 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
     await sync.stop()
     await queue.onIdle()
     await log.close()
-    events.emit('close')
+    events.dispatchEvent(new Event('close'))
   }
 
   const drop = async () => {
     await queue.onIdle()
     await log.clear()
-    events.emit('drop')
+    events.dispatchEvent(new Event('drop'))
   }
 
   // Start the Sync protocol

@@ -82,16 +82,16 @@ describe('Documents Database Replication', function () {
     let connected1 = false
     let connected2 = false
 
-    const onConnected1 = async (peerId, heads) => {
+    const onConnected1 = async () => {
       connected1 = true
     }
 
-    const onConnected2 = async (peerId, heads) => {
+    const onConnected2 = async () => {
       connected2 = true
     }
 
-    db1.events.on('join', onConnected1)
-    db2.events.on('join', onConnected2)
+    db1.events.addEventListener('join', onConnected1)
+    db2.events.addEventListener('join', onConnected2)
 
     await db1.put({ _id: 1, msg: 'record 1 on db 1' })
     await db2.put({ _id: 2, msg: 'record 2 on db 2' })

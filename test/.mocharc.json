@@ -4,5 +4,6 @@
   "recursive": true,
   "exit": true,
   "slow": 1000,
-  "exclude": ["test/browser/**/*.js"]
+  "exclude": ["test/browser/**/*.js"],
+  "node-option": ["experimental-global-customevent"]
 }

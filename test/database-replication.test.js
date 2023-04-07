@@ -85,16 +85,16 @@ describe('Database - Replication', function () {
       let replicated = false
       let expectedEntryHash = null
 
-      const onConnected = (peerId, heads) => {
-        replicated = expectedEntryHash !== null && heads.map(e => e.hash).includes(expectedEntryHash)
+      const onConnected = (event) => {
+        replicated = expectedEntryHash !== null && event.detail.heads.map(e => e.hash).includes(expectedEntryHash)
       }
 
-      const onUpdate = (entry) => {
-        replicated = expectedEntryHash !== null && entry.hash === expectedEntryHash
+      const onUpdate = (event) => {
+        replicated = expectedEntryHash !== null && event.detail.hash === expectedEntryHash
       }
 
-      db2.events.on('join', onConnected)
-      db2.events.on('update', onUpdate)
+      db2.events.addEventListener('join', onConnected)
+      db2.events.addEventListener('update', onUpdate)
 
       await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
       await db1.addOperation({ op: 'PUT', key: 2, value: 'record 2 on db 1' })
@@ -120,16 +120,16 @@ describe('Database - Replication', function () {
       let replicated = false
       let expectedEntryHash = null
 
-      const onConnected = (peerId, heads) => {
-        replicated = expectedEntryHash && heads.map(e => e.hash).includes(expectedEntryHash)
+      const onConnected = (event) => {
+        replicated = expectedEntryHash && event.detail.heads.map(e => e.hash).includes(expectedEntryHash)
       }
 
-      const onUpdate = (entry) => {
-        replicated = expectedEntryHash && entry.hash === expectedEntryHash
+      const onUpdate = (event) => {
+        replicated = expectedEntryHash && event.detail.hash === expectedEntryHash
       }
 
-      db2.events.on('join', onConnected)
-      db2.events.on('update', onUpdate)
+      db2.events.addEventListener('join', onConnected)
+      db2.events.addEventListener('update', onUpdate)
 
       await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
 
@@ -164,7 +164,7 @@ describe('Database - Replication', function () {
     it('adds an operation before db2 is instantiated', async () => {
       let connected = false
 
-      const onConnected = (peerId, heads) => {
+      const onConnected = () => {
         connected = true
       }
 
@@ -177,7 +177,7 @@ describe('Database - Replication', function () {
 
       db2 = await Database({ ipfs: ipfs2, identity: testIdentity2, address: databaseId, accessController, directory: './orbitdb2' })
 
-      db2.events.on('join', onConnected)
+      db2.events.addEventListener('join', onConnected)
 
       await waitFor(() => connected, () => true)
 
@@ -205,16 +205,16 @@ describe('Database - Replication', function () {
       let connected1 = false
       let connected2 = false
 
-      const onConnected1 = (peerId, heads) => {
+      const onConnected1 = () => {
         connected1 = true
       }
 
-      const onConnected2 = (peerId, heads) => {
+      const onConnected2 = () => {
         connected2 = true
       }
 
-      db1.events.on('join', onConnected1)
-      db2.events.on('join', onConnected2)
+      db1.events.addEventListener('join', onConnected1)
+      db2.events.addEventListener('join', onConnected2)
 
       await db1.addOperation({ op: 'PUT', key: 1, value: 'record 1 on db 1' })
       await db1.addOperation({ op: 'PUT', key: 2, value: 'record 2 on db 1' })
@@ -251,26 +251,26 @@ describe('Database - Replication', function () {
       let updateCount1 = 0
       let updateCount2 = 0
 
-      const onConnected1 = (peerId, heads) => {
+      const onConnected1 = () => {
         connected1 = true
       }
 
-      const onConnected2 = (peerId, heads) => {
+      const onConnected2 = () => {
         connected2 = true
       }
 
-      const onUpdate1 = async (entry) => {
+      const onUpdate1 = () => {
         ++updateCount1
       }
 
-      const onUpdate2 = async (entry) => {
+      const onUpdate2 = () => {
         ++updateCount2
       }
 
-      db1.events.on('join', onConnected1)
-      db2.events.on('join', onConnected2)
-      db1.events.on('update', onUpdate1)
-      db2.events.on('update', onUpdate2)
+      db1.events.addEventListener('join', onConnected1)
+      db2.events.addEventListener('join', onConnected2)
+      db1.events.addEventListener('update', onUpdate1)
+      db2.events.addEventListener('update', onUpdate2)
 
       await waitFor(() => connected1, () => true)
       await waitFor(() => connected2, () => true)
@@ -291,26 +291,26 @@ describe('Database - Replication', function () {
       let updateCount1 = 0
       let updateCount2 = 0
 
-      const onConnected1 = async (peerId, heads) => {
+      const onConnected1 = () => {
         connected1 = true
       }
 
-      const onConnected2 = async (peerId, heads) => {
+      const onConnected2 = () => {
         connected2 = true
       }
 
-      const onUpdate1 = async (entry) => {
+      const onUpdate1 = () => {
         ++updateCount1
       }
 
-      const onUpdate2 = async (entry) => {
+      const onUpdate2 = () => {
         ++updateCount2
       }
 
-      db1.events.on('join', onConnected1)
-      db2.events.on('join', onConnected2)
-      db1.events.on('update', onUpdate1)
-      db2.events.on('update', onUpdate2)
+      db1.events.addEventListener('join', onConnected1)
+      db2.events.addEventListener('join', onConnected2)
+      db1.events.addEventListener('update', onUpdate1)
+      db2.events.addEventListener('update', onUpdate2)
 
       await waitFor(() => connected1, () => true)
       await waitFor(() => connected2, () => true)
