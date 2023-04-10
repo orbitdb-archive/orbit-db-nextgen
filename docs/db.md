@@ -7,7 +7,7 @@ OrbitDB provides four types of data stores:
 - Events
 - Documents
 - Key/Value
-- Persisted Key/Value
+- Indexed Key/Value
 
 The type of database can be specified when calling OrbitDB's `open` function by using the `type` parameter:
 
