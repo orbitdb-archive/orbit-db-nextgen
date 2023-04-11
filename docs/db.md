@@ -2,6 +2,8 @@
 
 DB provides a variety of different data stores with a common interface.
 
+## Types
+
 OrbitDB provides four types of data stores:
 
 - Events
@@ -17,6 +19,46 @@ orbitdb.open('my-db', { type })
 ```
 
 If no type is specified, Events will the default database type.
+
+### Address
+
+When a database is created, it is assigned an address by OrbitDB. The address consists of three parts:
+
+```
+/orbitdb/zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL
+```
+
+The first part, `/orbitdb`, specifies the protocol in use. The second part, an IPFS multihash `zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL`, is the database manifest which contains the database info such as the name and type, and a pointer to the access controller.
+
+In order to replicate the database with peers, the address is what you need to give to other peers in order for them to start replicating the database.
+
+```javascript
+import IPFS from 'ipfs-core'
+import OrbitDB from 'orbit-db'
+
+const ipfs = await IPFS.create()
+const orbitdb = await OrbitDB({ ipfs })
+const db = await orbitdb.open('my-db')
+console.log(db.address)
+// /orbitdb/zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL
+```
+
+### Manifest
+
+The second part of the address, the IPFS multihash `zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL`, is also the hash of the database's manifest. The manifest contains information about the database such as name, type and other metadata. It also contains a reference to the access controller, which is made up of the type and the hash of the access controller object.
+
+An example of a manifest is given below:
+
+```json
+{
+  hash: 'zdpuAzzxCWEzRffxFrxNNVkcVFbkmA1EQdpZJJPc3wpjojkAT',
+  manifest: {
+    name: 'my-db',
+    type: 'events',
+    accessController: '/ipfs/zdpuB1TUuF5E81MFChDbRsZZ1A3Kz2piLJwKQ2ddnfZLEBx64'
+  }
+}
+```
 
 ## Opening a new database
 
