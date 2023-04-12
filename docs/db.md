@@ -60,6 +60,35 @@ An example of a manifest is given below:
 }
 ```
 
+## Operations
+
+Operations are of either type "PUT" or "DEL". 
+
+A PUT operation describes a record which has been created or edited. If operations share the same key or id, they are assumed to be related and the operation which was created after all other operations with the same key will be the latest version of the record.
+
+A DEL operation describes a record which has been removed. It will share the same key as a previous PUT operation and will indicate that the record that was PUT is now deleted.
+
+A PUT record might look like:
+
+```
+{
+  id: 'log-1',
+  payload: { op: 'PUT', key: 4, value: 'Some data' },
+  next: [ '3' ],
+  refs: [
+    '2',
+    '1'
+  ],
+  clock: Clock {
+    id: '038cc50a92f10c39f74394a1779dffb2c79ddc6b7d1bbef8c484bd4bbf8330c426',
+    time: 4
+  },
+  v: 2
+}
+```
+
+In the above example, payload holds the information about the record. `op` is the operation carried out, in this case PUT (the other option is DEL). `key` holds a unique identifier for the record and value contains some data. In the above example, data is a string but it could be a number, XML or even the JSON representation of an object.
+
 ## Opening a new database
 
 Opening a default event store:
