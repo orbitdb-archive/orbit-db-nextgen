@@ -4,7 +4,13 @@ The operations log or oplog, contains an immutable list of operations which have
 
 Each operation is known as an entry and each entry includes the id of the log the entry is stored in, some metadata describing the entry, references to other entries which come before it and payload which includes the data being stored.
 
-### Joining Logs
+## Conflict-free Replicated Data Types (CRDT)
+
+in a distributed system such as orbitdb, a log is replicated across multiple systems. these replicas are updated independently of one another so that the state of one replica may differ greatly from the state of another. Differing replicas leaves the state of the log inconsistent. Concurrent updates to multiple versions of the same log requires a mechanism for resolving inconsistencies and returning the log to a consistent state across all replicas.  
+
+a crdt is a data structure that is replicated across multiple systems, is able to be updated concurrently and without any coordination with other replicas and can resolve inconsistencies between replicas when replicas are merged.
+
+## Joining Logs
 
 Logs are stored independently of one another, hence they are decentralized. If two logs store the data for the same database, they must eventually be joined together.
 
