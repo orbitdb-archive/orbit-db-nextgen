@@ -1,4 +1,8 @@
-import { IPFSBlockStorage } from '../storage/index.js'
+/**
+ * @namespace AccessControllers-IPFS
+ * @memberof module:AccessControllers
+ */
+import { IPFSBlockStorage, LRUStorage, ComposedStorage } from '../storage/index.js'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -23,7 +27,10 @@ const AccessControlList = async ({ storage, type, params }) => {
 const type = 'ipfs'
 
 const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address }) => {
-  storage = storage || await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+  storage = storage || await ComposedStorage(
+    await LRUStorage({ size: 1000 }),
+    await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+  )
   write = write || [orbitdb.identity.id]
 
   if (address) {
