@@ -10,6 +10,12 @@ in a distributed system such as orbitdb, a log is replicated across multiple sys
 
 a crdt is a data structure that is replicated across multiple systems, is able to be updated concurrently and without any coordination with other replicas and can resolve inconsistencies between replicas when replicas are merged.
 
+To learn more about CRDTs, check out this research:
+
+- ["A comprehensive study of Convergent and Commutative Replicated Data Types"](http://hal.upmc.fr/inria-00555588/document) paper
+- [CRDTs on Wikipedia](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type#Known_CRDTs)
+- [IPFS's CRDT research group](https://github.com/ipfs/research-CRDT)
+
 ## Joining Logs
 
 Logs are stored independently of one another, hence they are decentralized. If two logs store the data for the same database, they must eventually be joined together.
