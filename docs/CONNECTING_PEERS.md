@@ -1,44 +1,28 @@
 # Connecting Peers
 
-## Node
+OrbitDB peers connect to one another using js-libp2p. Connection settings will vary depending on what environment the peer is running in and what system the peers is attempting to connect to.
 
-- can discover peers
-- can connect directly
+## Node daemon to node daemon
+
+Node.js allows libp2p to open connections with other Node.js daemons.
 
 ```
-const defaultFilter = () => true
-
-const connectPeers = async (ipfs1, ipfs2, options = {
-  filter: defaultFilter
-}) => {
-  const id1 = await ipfs1.id()
-  const id2 = await ipfs2.id()
-
-  const addresses1 = id1.addresses.filter(options.filter)
-  const addresses2 = id2.addresses.filter(options.filter)
-
-  for (const a2 of addresses2) {
-    await ipfs1.swarm.connect(a2)
-  }
-  for (const a1 of addresses1) {
-    await ipfs2.swarm.connect(a1)
-  }
-}
-
-ipfsConfig1 = {
-
-}
-
-ipfsConfig2 = {
-
-}
-
-ipfs1 = await IPFS.create({ ...ipfsConfig1, repo: './ipfs1' })
-ipfs2 = await IPFS.create({ ...ipfsConfig2, repo: './ipfs2' })
+ipfs1 = await IPFS.create({ repo: './ipfs1' })
+ipfs2 = await IPFS.create({ repo: './ipfs2' })
 await connectPeers(ipfs1, ipfs2)
 ```
 
-## Browser
+## node daemon to browser
+
+- webRTC direct
+
+## Browser to browser
 
 - requires an intermediary
 - webRTCStar
+
+## Further Reading
+
+The js-libp2p library provides variety of [configuration options](https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md) for finding peers and connecting them to one another.
+
+The different methods of connecting various systems is outlined in [libp2p's connectivity](https://connectivity.libp2p.io) section.
