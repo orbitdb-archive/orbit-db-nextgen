@@ -20,6 +20,7 @@
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
     "@libp2p/crypto": "^1.0.12",
+    "@libp2p/webrtc-star": "^7.0.0",
     "it-pipe": "^2.0.5",
     "level": "^8.0.0",
     "lru": "^3.1.0",
