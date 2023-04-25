@@ -3,15 +3,14 @@ import path from 'path'
 import fs from 'fs'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs-core'
 import { KeyStore, Identities, MemoryStorage } from '../../src/index.js'
 import { KeyValueIndexed } from '../../src/db/index.js'
-import config from '../config.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
+import createHelia from '../utils/create-helia.js'
 
 const keysPath = './testkeys'
 
-describe('KeyValueIndexed Database', function () {
+describe('KeyValuePersisted Database', function () {
   let ipfs
   let keystore
   let accessController
@@ -22,7 +21,7 @@ describe('KeyValueIndexed Database', function () {
   const databaseId = 'keyvalue-AAA'
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    ipfs = await createHelia()
 
     await copy(testKeysPath, keysPath)
     keystore = await KeyStore({ path: keysPath })

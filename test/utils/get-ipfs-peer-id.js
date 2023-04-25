@@ -1,8 +1,7 @@
 'use strict'
 
-const getIpfsPeerId = async (ipfs) => {
-  const peerId = await ipfs.id()
-  return peerId.id
+const getIpfsPeerId = (ipfs) => {
+  return ipfs.libp2p.peerId
 }
 
 export default getIpfsPeerId

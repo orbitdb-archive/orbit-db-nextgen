@@ -1,46 +1,19 @@
 import { OrbitDB } from '../src/index.js'
 import rmrf from 'rimraf'
-import * as IPFS from 'ipfs-core'
+import createHelia from '../test/utils/create-helia.js'
 
 import { EventEmitter } from 'events'
 
 EventEmitter.defaultMaxListeners = 10000
-
-const ipfsConfig = {
-  preload: {
-    enabled: false
-  },
-  EXPERIMENTAL: {
-    pubsub: true
-  },
-  config: {
-    Addresses: {
-      API: '/ip4/127.0.0.1/tcp/0',
-      Swarm: ['/ip4/0.0.0.0/tcp/0'],
-      Gateway: '/ip4/0.0.0.0/tcp/0'
-    },
-    Bootstrap: [],
-    Discovery: {
-      MDNS: {
-        Enabled: false,
-        Interval: 0
-      },
-      webRTCStar: {
-        Enabled: false
-      }
-    }
-  }
-}
 
 ;(async () => {
   console.log('Starting benchmark...')
 
   const entryCount = 1000
 
-  await rmrf('./ipfs')
   await rmrf('./orbitdb')
 
-  const ipfs = await IPFS.create({ ...ipfsConfig, repo: './ipfs' })
+  const ipfs = await createHelia()
   const orbitdb = await OrbitDB({ ipfs })
 
   console.log(`Set ${entryCount} keys/values`)
@@ -80,7 +53,6 @@ const ipfsConfig = {
   await orbitdb.stop()
   await ipfs.stop()
 
-  await rmrf('./ipfs')
   await rmrf('./orbitdb')
 
   process.exit(0)

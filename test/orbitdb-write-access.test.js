@@ -1,11 +1,10 @@
 import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
 import path from 'path'
-import * as IPFS from 'ipfs-core'
 import OrbitDB from '../src/orbitdb.js'
-import config from './config.js'
 import waitFor from './utils/wait-for.js'
 import connectPeers from './utils/connect-nodes.js'
+import createHelia from './utils/create-helia.js'
 import IPFSAccessController from '../src/access-controllers/ipfs.js'
 import OrbitDBAccessController from '../src/access-controllers/orbitdb.js'
 
@@ -18,8 +17,8 @@ describe('Write Permissions', function () {
   let orbitdb1, orbitdb2
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
 
     orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: path.join(dbPath, '1') })

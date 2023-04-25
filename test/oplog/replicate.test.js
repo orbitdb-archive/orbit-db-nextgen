@@ -1,13 +1,12 @@
 import { strictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs-core'
 import { Log, Entry, Identities, KeyStore, IPFSBlockStorage } from '../../src/index.js'
-import config from '../config.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
 import connectPeers from '../utils/connect-nodes.js'
 import getIpfsPeerId from '../utils/get-ipfs-peer-id.js'
 import waitForPeers from '../utils/wait-for-peers.js'
+import createHelia from '../utils/create-helia.js'
 
 const keysPath = './testkeys'
 
@@ -22,8 +21,8 @@ describe('Log - Replication', function () {
   let storage1, storage2
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
 
     id1 = await getIpfsPeerId(ipfs1)
@@ -58,8 +57,6 @@ describe('Log - Replication', function () {
     await storage2.close()
 
     await rmrf(keysPath)
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   describe('replicates logs deterministically', async function () {
@@ -68,8 +65,13 @@ describe('Log - Replication', function () {
 
     let log1, log2, input1, input2
 
-    const handleMessage1 = async (message) => {
-      const { id: peerId } = await ipfs1.id()
+    const handleMessage1 = async (event) => {
+      if (event.detail.topic !== logId) {
+        return
+      }
+
+      const message = event.detail
+      const peerId = ipfs1.libp2p.peerId
       const messageIsFromMe = (message) => String(peerId) === String(message.from)
       try {
         if (!messageIsFromMe(message)) {
@@ -82,8 +84,13 @@ describe('Log - Replication', function () {
       }
     }
 
-    const handleMessage2 = async (message) => {
-      const { id: peerId } = await ipfs2.id()
+    const handleMessage2 = async (event) => {
+      if (event.detail.topic !== logId) {
+        return
+      }
+
+      const message = event.detail
+      const peerId = ipfs2.libp2p.peerId
       const messageIsFromMe = (message) => String(peerId) === String(message.from)
       try {
         if (!messageIsFromMe(message)) {
@@ -101,13 +108,23 @@ describe('Log - Replication', function () {
       log2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
       input1 = await Log(testIdentity1, { logId, entryStorage: storage1 })
       input2 = await Log(testIdentity2, { logId, entryStorage: storage2 })
-      await ipfs1.pubsub.subscribe(logId, handleMessage1)
-      await ipfs2.pubsub.subscribe(logId, handleMessage2)
+      ipfs1.libp2p.pubsub.addEventListener('message', handleMessage1)
+      ipfs2.libp2p.pubsub.addEventListener('message', handleMessage2)
+
+      await Promise.all([
+        ipfs1.libp2p.pubsub.subscribe(logId),
+        ipfs2.libp2p.pubsub.subscribe(logId)
+      ])
     })
 
     afterEach(async () => {
-      await ipfs1.pubsub.unsubscribe(logId, handleMessage1)
-      await ipfs2.pubsub.unsubscribe(logId, handleMessage2)
+      ipfs1.libp2p.pubsub.removeEventListener('message', handleMessage1)
+      ipfs2.libp2p.pubsub.removeEventListener('message', handleMessage2)
+
+      await Promise.all([
+        ipfs1.libp2p.pubsub.unsubscribe(logId),
+        ipfs2.libp2p.pubsub.unsubscribe(logId)
+      ])
     })
 
     it('replicates logs', async () => {
@@ -117,8 +134,8 @@ describe('Log - Replication', function () {
       for (let i = 1; i <= amount; i++) {
         const entry1 = await input1.append('A' + i)
         const entry2 = await input2.append('B' + i)
-        await ipfs1.pubsub.publish(logId, entry1.bytes)
-        await ipfs2.pubsub.publish(logId, entry2.bytes)
+        await ipfs1.libp2p.pubsub.publish(logId, entry1.bytes)
+        await ipfs2.libp2p.pubsub.publish(logId, entry2.bytes)
       }
 
       console.log('Messages sent')
@@ -139,7 +156,7 @@ describe('Log - Replication', function () {
         })
       }
 
-      await whileProcessingMessages(config.timeout)
+      await whileProcessingMessages(30000)
 
       const result = await Log(testIdentity1, { logId, entryStorage: storage1 })
       await result.join(log1)

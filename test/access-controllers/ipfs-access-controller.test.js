@@ -1,17 +1,16 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
-import * as IPFS from 'ipfs-core'
 import Keystore from '../../src/key-store.js'
 import Identities from '../../src/identities/identities.js'
 import IPFSAccessController from '../../src/access-controllers/ipfs.js'
-import config from '../config.js'
 import connectPeers from '../utils/connect-nodes.js'
+import createHelia from '../utils/create-helia.js'
 
 describe('IPFSAccessController', function () {
   const dbPath1 = './orbitdb/tests/ipfs-access-controller/1'
   const dbPath2 = './orbitdb/tests/ipfs-access-controller/2'
 
-  this.timeout(config.timeout)
+  this.timeout(30000)
 
   let ipfs1, ipfs2
   let keystore1, keystore2
@@ -20,8 +19,8 @@ describe('IPFSAccessController', function () {
   let orbitdb1, orbitdb2
 
   before(async () => {
-    ipfs1 = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
-    ipfs2 = await IPFS.create({ ...config.daemon2, repo: './ipfs2' })
+    [ipfs1, ipfs2] = await Promise.all([createHelia(), createHelia()])
+
     await connectPeers(ipfs1, ipfs2)
 
     keystore1 = await Keystore({ path: dbPath1 + '/keys' })
@@ -55,8 +54,6 @@ describe('IPFSAccessController', function () {
     }
 
     await rmrf('./orbitdb')
-    await rmrf('./ipfs1')
-    await rmrf('./ipfs2')
   })
 
   let accessController

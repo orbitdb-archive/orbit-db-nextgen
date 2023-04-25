@@ -1,11 +1,10 @@
 import { strictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import * as IPFS from 'ipfs-core'
 import { Log, Identities, KeyStore } from '../src/index.js'
 import { IPFSBlockStorage, MemoryStorage, LRUStorage, ComposedStorage } from '../src/storage/index.js'
-import config from './config.js'
 import testKeysPath from './fixtures/test-keys-path.js'
+import createHelia from './utils/create-helia.js'
 
 const keysPath = './testkeys'
 
@@ -17,7 +16,7 @@ describe('Storages', function () {
   let testIdentity
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    ipfs = await createHelia()
 
     await copy(testKeysPath, keysPath)
     keystore = await KeyStore({ path: keysPath })
@@ -35,7 +34,6 @@ describe('Storages', function () {
       await keystore.close()
     }
 
-    await rmrf('./ipfs1')
     await rmrf(keysPath)
   })
 

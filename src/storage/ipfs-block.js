@@ -14,21 +14,31 @@ const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
 
   const put = async (hash, data) => {
     const cid = CID.parse(hash, base58btc)
-    await ipfs.block.put(data, {
-      cid: cid.bytes,
-      version: cid.version,
-      format: 'dag-cbor',
-      mhtype: 'sha2-256',
-      pin,
-      timeout
-    })
+
+    if (ipfs.blockstore) {
+      await ipfs.blockstore.put(cid, data)
+
+      if (pin && !(await ipfs.pins.isPinned(cid))) {
+        await ipfs.pins.add(cid)
+      }
+    } else {
+      await ipfs.block.put(data, {
+        cid: cid.bytes,
+        version: cid.version,
+        format: 'dag-cbor',
+        mhtype: 'sha2-256',
+        pin,
+        timeout
+      })
+    }
   }
 
   const del = async (hash) => {}
 
   const get = async (hash) => {
     const cid = CID.parse(hash, base58btc)
-    const block = await ipfs.block.get(cid, { timeout })
+    const block = ipfs.blockstore ? await ipfs.blockstore.get(cid) : await ipfs.block.get(cid, { timeout })
+
     if (block) {
       return block
     }

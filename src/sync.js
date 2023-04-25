@@ -192,6 +192,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
         try {
           peers.add(peerId)
           const stream = await ipfs.libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal })
+
           await pipe(sendHeads, stream, receiveHeads(peerId))
         } catch (e) {
           if (e.code === 'ERR_UNSUPPORTED_PROTOCOL') {
@@ -213,9 +214,15 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
     queue.add(task)
   }
 
-  const handleUpdateMessage = async (message) => {
+  const handleUpdateMessage = async (event) => {
+    const message = event.detail
+
+    if (message.topic !== address) {
+      return
+    }
+
     const task = async () => {
-      const { id: peerId } = await ipfs.id()
+      const peerId = ipfs.libp2p.peerId
       const messageIsNotFromMe = (message) => String(peerId) !== String(message.from)
       const messageHasData = (message) => message.data !== undefined
       try {
@@ -238,7 +245,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
    */
   const add = async (entry) => {
     if (started) {
-      await ipfs.pubsub.publish(address, entry.bytes)
+      await ipfs.libp2p.pubsub.publish(address, entry.bytes)
     }
   }
 
@@ -253,7 +260,8 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
       await queue.onIdle()
       ipfs.libp2p.pubsub.removeEventListener('subscription-change', handlePeerSubscribed)
       await ipfs.libp2p.unhandle(headsSyncAddress)
-      await ipfs.pubsub.unsubscribe(address, handleUpdateMessage)
+      await ipfs.libp2p.pubsub.unsubscribe(address)
+      ipfs.libp2p.pubsub.removeEventListener('message', handleUpdateMessage)
       peers.clear()
       started = false
     }
@@ -271,7 +279,8 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
       await ipfs.libp2p.handle(headsSyncAddress, handleReceiveHeads)
       ipfs.libp2p.pubsub.addEventListener('subscription-change', handlePeerSubscribed)
       // Subscribe to the pubsub channel for this database through which updates are sent
-      await ipfs.pubsub.subscribe(address, handleUpdateMessage)
+      await ipfs.libp2p.pubsub.subscribe(address)
+      ipfs.libp2p.pubsub.addEventListener('message', handleUpdateMessage)
       started = true
     }
   }

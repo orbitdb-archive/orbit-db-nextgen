@@ -1,8 +1,7 @@
 import { strictEqual, deepStrictEqual, notStrictEqual } from 'assert'
 import rmrf from 'rimraf'
-import * as IPFS from 'ipfs-core'
 import OrbitDB, { AccessControllers } from '../src/orbitdb.js'
-import config from './config.js'
+import createHelia from './utils/create-helia.js'
 import pathJoin from '../src/utils/path-join.js'
 
 const type = 'custom!'
@@ -24,7 +23,7 @@ describe('Add a custom access controller', function () {
   let orbitdb
 
   before(async () => {
-    ipfs = await IPFS.create({ ...config.daemon1, repo: './ipfs1' })
+    ipfs = await createHelia()
     orbitdb = await OrbitDB({ ipfs })
   })
 
