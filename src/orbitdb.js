@@ -1,4 +1,3 @@
-/** @module OrbitDB */
 import { Events, KeyValue, Documents } from './db/index.js'
 import KeyStore from './key-store.js'
 import { Identities } from './identities/index.js'
@@ -9,13 +8,38 @@ import pathJoin from './utils/path-join.js'
 import * as AccessControllers from './access-controllers/index.js'
 import IPFSAccessController from './access-controllers/ipfs.js'
 
-// Mapping for database types
+/**
+ * @module OrbitDB
+ * @description
+ * OrbitDB is a serverless, distributed, peer-to-peer database. OrbitDB uses
+ * IPFS as its data storage and Libp2p Pubsub to automatically sync databases
+ * with peers. It's an eventually consistent database that uses Merkle-CRDTs
+ * for conflict-free database writes and merges making OrbitDB an excellent
+ * choice for p2p and decentralized apps, blockchain applications and local
+ * first web applications.
+ */
+
+ /**
+  * Set of currently connected peers for the log for this Sync instance.
+  * @name databaseTypes
+  * @†ype []
+  * @return [] An array of database types. 
+  * @memberof module:OrbitDB
+  * @instance
+  */
 const databaseTypes = {
   events: Events,
   documents: Documents,
   keyvalue: KeyValue
 }
 
+/**
+ * Add to the database types.
+ * @function addDatabaseType
+ * @param {String} type The database type.
+ * @param {module:Database} store A Database-compatible module.
+ * @memberof module:OrbitDB
+ */
 const addDatabaseType = (type, store) => {
   if (databaseTypes[type]) {
     throw new Error(`Type already exists: ${type}`)
@@ -26,6 +50,18 @@ const addDatabaseType = (type, store) => {
 const DefaultDatabaseType = 'events'
 const DefaultAccessController = IPFSAccessController
 
+/**
+ * Creates an instance of OrbitDB.
+ *
+ * @function
+ * @param {Object} params One or more parameters for configuring OrbitDB.
+ * @param {IPFS} params.ipfs An IPFS instance.
+ * @param {String} [params.id] The id of the OrbitDB instance.
+ * @param {Identity} [params.identity] An Identity instance.
+ * @param {KeyStore} [params.keystore] A KeyStore instance.
+ * @param {String} [params.directory] A location for storing OrbitDB-related data.
+ * @instance
+ */
 const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   if (ipfs == null) {
     throw new Error('IPFS instance is a required argument. See https://github.com/orbitdb/orbit-db/blob/master/API.md#createinstance')
@@ -42,6 +78,31 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
 
   let databases = {}
 
+  /**
+   * Open a database or create if one does not already exist.
+   * @function open
+   * @param {String} address The address of an existing database to open, or 
+   * the name of a new database.
+   * @param {Object} params One or more database configuration parameters.
+   * @param {*} params.meta The database's metadata.
+   * @param {bool} params.sync If true, sync databases automatically.
+   * Otherwise, false.
+   * @param {module:Database} params.Database A Database-compatible module.
+   * @param {module:AccessControllers} params.AccessController An
+   * AccessController-compatible module.
+   * @param {module:Storage} [params.headsStorage] A compatible storage
+   * instance for storing log heads.
+   * @param {module:Storage} [params.entryStorage] A compatible storage instance
+   * for storing log entries.
+   * @param {module:Storage} [params.indexStorage] A compatible storage
+   * instance for storing an index of log entries.
+   * @param {Integer} [params.referencesCount]  The maximum distance between
+   * references to other entries.
+   * @memberof module:OrbitDB
+   * @return {module:Database} A database instance.
+   * @instance
+   * @async
+   */
   const open = async (address, { type, meta, sync, Database, AccessController, headsStorage, entryStorage, indexStorage, referencesCount } = {}) => {
     let name, manifest, accessController
 
@@ -97,6 +158,13 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
     delete databases[address]
   }
 
+  /**
+   * Stops OrbitDB, closing the underlying keystore and manifest.
+   * @function stop
+   * @memberof module:OrbitDB
+   * @instance
+   * @async
+   */
   const stop = async () => {
     if (keystore) {
       await keystore.close()
