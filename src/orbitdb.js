@@ -30,7 +30,7 @@
 * ```
 * Once the database has been created, it can be opened again using its
 * multiformat address:
-* ```
+* ```javascript
 * const dbAddress = '/orbitdb/db-hash' // db-hash will be some multiaddress.
 * const mydb = await orbitdb.open(dbAddress)
 * ```
@@ -126,7 +126,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   /**
    * Open a database or create one if it does not already exist.
    *
-   * By default, OrbitDB will create a database of type <a href="module-OrbitDB.html#~DefaultDatabaseType">DefaultDatabaseType</a>:
+   * By default, OrbitDB will create a database of type [DefaultDatabaseType]{@link module:OrbitDB~DefaultDatabaseType}:
    * ```
    * const mydb = await orbitdb.open('mydb')
    * ```
@@ -134,7 +134,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * ```
    * const mydb = await orbitdb.open('mydb', {type: 'documents'})
    * ```
-   * The type must be listed in <a href="module-OrbitDB.html#.databaseTypes">databaseTypes</a> or an error is thrown.
+   * The type must be listed in [databaseTypes]{@link module:OrbitDB.databaseTypes} or an error is thrown.
    * @function open
    * @param {String} address The address of an existing database to open, or
    * the name of a new database.
