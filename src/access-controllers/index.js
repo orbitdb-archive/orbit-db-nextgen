@@ -39,13 +39,13 @@ const isSupported = type => {
 }
 
 /**
- * Adds an access controller module to the list of supported access controller 
+ * Adds an access controller module to the list of supported access controller
  * types.
  * @param {AccessController} accessController A compatible access controller
  * module.
- * @throws Access controller `type` already added if the access controller is 
+ * @throws Access controller `type` already added if the access controller is
  * already supported.
- * @throws Given AccessController class needs to implement: type.if the access 
+ * @throws Given AccessController class needs to implement: type if the access
  * controller module does not implement a type property.
  */
 const add = (accessController) => {
