@@ -12,7 +12,7 @@
 * ```bash
 * npm install orbit-db
 * ```
-* 
+*
 * IPFS is also required:
 * ```bash
 * npm install ipfs-core
@@ -107,7 +107,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * @namespace module:OrbitDB~OrbitDB
    * @description The instance returned by {@link module:OrbitDB}.
    */
-     
+
   if (ipfs == null) {
     throw new Error('IPFS instance is a required argument. See https://github.com/orbitdb/orbit-db/blob/master/API.md#createinstance')
   }
