@@ -51,14 +51,14 @@ const defaultCacheSize = 1000
  * @param {String} [params.name] The name of the database.
  * @param {AccessControllers} [params.access] An AccessController instance.
  * @param {String} [params.directory] A location for storing Database-related
- * data.
+ * data. Default is ./orbitdb/[params.address].
  * @param {*} params.meta The database's metadata.
  * @param {module:Storage} [params.headsStorage] A compatible storage
- * instance for storing log heads.
+ * instance for storing log heads. Default is ComposedStorage.
  * @param {module:Storage} [params.entryStorage] A compatible storage instance
- * for storing log entries.
+ * for storing log entries. Default is ComposedStorage.
  * @param {module:Storage} [params.indexStorage] A compatible storage
- * instance for storing an index of log entries.
+ * instance for storing an index of log entries. . Default is ComposedStorage.
  * @param {Integer} [params.referencesCount]  The maximum distance between
  * references to other entries.
  * @param {bool} [params.syncAutomatically=false] If true, sync databases
