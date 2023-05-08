@@ -1,3 +1,13 @@
+/**
+* @module KeyStore
+* @description
+* Provides a local key manager for OrbitDB.
+* @example <caption>Create a keystore with defaults.</caption>
+* const keystore = await KeyStore()
+* @example <caption>Create a keystore with custom storage.</caption>
+* const storage = await MemoryStorage()
+* const keystore = await KeyStore({ storage })
+*/
 import * as crypto from '@libp2p/crypto'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
@@ -9,6 +19,9 @@ import LRUStorage from './storage/lru.js'
 const unmarshal = crypto.keys.supportedKeys.secp256k1.unmarshalSecp256k1PrivateKey
 const unmarshalPubKey = crypto.keys.supportedKeys.secp256k1.unmarshalSecp256k1PublicKey
 
+/**
+ *
+ */
 const verifySignature = async (signature, publicKey, data) => {
   if (!signature) {
     throw new Error('No signature given')
@@ -77,26 +90,59 @@ const verifyMessage = async (signature, publicKey, data) => {
   return res
 }
 
+/**
+ * The default KeyStore path './keystore'.
+ * @memberof module:KeyStore
+ */
 const defaultPath = './keystore'
 
 /**
  * Creates an instance of KeyStore.
- * @param {Object} options Various options to use when instantiating KeyStore.
- * @param {Object} options.storage An instance of a storage class. Can be one of ComposedStorage, IPFSBlockStorage, LevelStorage, etc. Defaults to ComposedStorage.
- * @param {string} options.path The path to a valid storage. Defaults to ./keystore.
+ * @param {Object} params One or more parameters for configuring KeyStore.
+ * @param {Object} [params.storage] An instance of a storage class. Can be one
+ * of ComposedStorage, IPFSBlockStorage, LevelStorage, etc. Defaults to
+ * ComposedStorage.
+ * @param {string} [params.path] The path to a valid storage. Defaults to
+ * [defaultPath]{@link module:KeyStore.defaultPath}.
  * @return {KeyStore} An instance of KeyStore.
+ * @instance
  */
 const KeyStore = async ({ storage, path } = {}) => {
+  /**
+   * @namespace module:KeyStore~KeyStore
+   * @description The instance returned by {@link module:KeyStore}.
+   */
   storage = storage || await ComposedStorage(await LRUStorage({ size: 1000 }), await LevelStorage({ path: path || defaultPath }))
 
+  /**
+   * Closes the KeyStore's underlying storage.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const close = async () => {
     await storage.close()
   }
 
+  /**
+   * Clears the KeyStore's underlying storage.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const clear = async () => {
     await storage.clear()
   }
 
+  /**
+   * Checks if the key exists in the key store.
+   * @param {String} id The id of the private key in the key store.
+   * @return {bool} True if the key exists, false otherwise.
+   * @throws id needed to check a key if no id is specified.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const hasKey = async (id) => {
     if (!id) {
       throw new Error('id needed to check a key')
@@ -114,11 +160,26 @@ const KeyStore = async ({ storage, path } = {}) => {
     return hasKey
   }
 
+  /**
+   * Adds a key to the keystore.
+   * @param {String} id A storage id for the key.
+   * @param {Uint8Array} key The key to store.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const addKey = async (id, key) => {
-    //    await storage.put('public_' + id, key.publicKey)
     await storage.put('private_' + id, key.privateKey)
   }
 
+  /**
+   * Creates a key, storing it to the keystore.
+   * @param {String} id A storage id for the key.
+   * @throws id needed to create a key if no id is specified.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const createKey = async (id, { entropy } = {}) => {
     if (!id) {
       throw new Error('id needed to create a key')
@@ -139,6 +200,15 @@ const KeyStore = async ({ storage, path } = {}) => {
     return keys
   }
 
+  /**
+   * Gets the key from keystore.
+   * @param {String} id A storage id of the key.
+   * @return {Uint8Array} The key specified by id.
+   * @throws id needed to get a key if no id is specified.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const getKey = async (id) => {
     if (!id) {
       throw new Error('id needed to get a key')
@@ -158,6 +228,19 @@ const KeyStore = async ({ storage, path } = {}) => {
     return unmarshal(storedKey)
   }
 
+  /**
+   * Gets th serialized public key from a key pair.
+   * @param {*} keys A key pair.
+   * @param {Object} options One or more options.
+   * @param {Object} [options.format=hex] The format the public key should be
+   * returned in.
+   * @return {Uint8Array|String} The public key.
+   * @throws Supported formats are `hex` and `buffer` if an invalid format is
+   * passed in options.
+   * @memberof module:KeyStore~KeyStore
+   * @async
+   * @instance
+   */
   const getPublic = (keys, options = {}) => {
     const formats = ['hex', 'buffer']
     const format = options.format || 'hex'
