@@ -74,6 +74,28 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
    * @description The instance returned by {@link module:Database~Database}.
    */
 
+  /**
+   * Event fired when an update occurs.
+   * @event module:Database~Database#update
+   * @param {module:Entry} entry An entry.
+   * @example
+   * database.events.on('update', (entry) => ...)
+   */
+
+  /**
+   * Event fired when a close occurs.
+   * @event module:Database~Database#close
+   * @example
+   * database.events.on('close', () => ...)
+   */
+
+  /**
+   * Event fired when a drop occurs.
+   * @event module:Database~Database#drop
+   * @example
+   * database.events.on('drop', () => ...)
+   */
+
   directory = pathJoin(directory || './orbitdb', `./${address}/`)
   meta = meta || {}
   referencesCount = referencesCount || defaultReferencesCount
