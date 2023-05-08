@@ -1,3 +1,40 @@
+/**
+* @module OrbitDB
+* @description
+* OrbitDB is a serverless, distributed, peer-to-peer database. OrbitDB uses
+* IPFS as its data storage and Libp2p Pubsub to automatically sync databases
+* with peers. It's an eventually consistent database that uses Merkle-CRDTs
+* for conflict-free database writes and merges making OrbitDB an excellent
+* choice for p2p and decentralized apps, blockchain applications and local
+* first web applications.
+*
+* To install OrbitDB:
+* ```bash
+* npm install orbit-db
+* ```
+* 
+* IPFS is also required:
+* ```bash
+* npm install ipfs-core
+* ```
+*
+* Instantiate OrbitDB and open a new database:
+* ```javascript
+* import { create } from 'ipfs-core'
+* import OrbitDB from 'orbit-db'
+*
+* const ipfs = await create() // IPFS is required for storage and syncing
+* const orbitdb = await OrbitDB({ ipfs })
+* const mydb = await orbitdb.open('mydb')
+* console.log('mydb address', mydb.address)
+* ```
+* Once the database has been created, it can be opened again using its
+* multiformat address:
+* ```
+* const dbAddress = '/orbitdb/db-hash' // db-hash will be some multiaddress.
+* const mydb = await orbitdb.open(dbAddress)
+* ```
+*/
 import { Events, KeyValue, Documents } from './db/index.js'
 import KeyStore from './key-store.js'
 import { Identities } from './identities/index.js'
@@ -9,24 +46,12 @@ import * as AccessControllers from './access-controllers/index.js'
 import IPFSAccessController from './access-controllers/ipfs.js'
 
 /**
- * @module OrbitDB
- * @description
- * OrbitDB is a serverless, distributed, peer-to-peer database. OrbitDB uses
- * IPFS as its data storage and Libp2p Pubsub to automatically sync databases
- * with peers. It's an eventually consistent database that uses Merkle-CRDTs
- * for conflict-free database writes and merges making OrbitDB an excellent
- * choice for p2p and decentralized apps, blockchain applications and local
- * first web applications.
+ * An array of available database types.
+ * @name databaseTypes
+ * @†ype []
+ * @return [] An array of database types.
+ * @memberof module:OrbitDB
  */
-
- /**
-  * Set of currently connected peers for the log for this Sync instance.
-  * @name databaseTypes
-  * @†ype []
-  * @return [] An array of database types. 
-  * @memberof module:OrbitDB
-  * @instance
-  */
 const databaseTypes = {
   events: Events,
   documents: Documents,
@@ -34,7 +59,14 @@ const databaseTypes = {
 }
 
 /**
- * Add to the database types.
+ * Add a new database type.
+ * @example
+ * import { addDatabaseType } from 'orbit-db'
+ * const CustomDBTypeModule = async (params) => {
+ *   const database = await Database(...params)
+ *   ...
+ * }
+ * addDatabaseType('customDBType', CustomDBTypeModule)
  * @function addDatabaseType
  * @param {String} type The database type.
  * @param {module:Database} store A Database-compatible module.
@@ -47,22 +79,35 @@ const addDatabaseType = (type, store) => {
   databaseTypes[type] = store
 }
 
+/**
+ * The default database type 'events'.
+ */
 const DefaultDatabaseType = 'events'
+
+/**
+ * The default access controller 'IPFSAccessController'.
+ */
 const DefaultAccessController = IPFSAccessController
 
 /**
  * Creates an instance of OrbitDB.
- *
  * @function
  * @param {Object} params One or more parameters for configuring OrbitDB.
  * @param {IPFS} params.ipfs An IPFS instance.
  * @param {String} [params.id] The id of the OrbitDB instance.
  * @param {Identity} [params.identity] An Identity instance.
- * @param {KeyStore} [params.keystore] A KeyStore instance.
- * @param {String} [params.directory] A location for storing OrbitDB-related data.
+ * @param {namespace:KeyStore} [params.keystore] A KeyStore instance.
+ * @param {String} [params.directory] A location for storing OrbitDB-related
+ * data.
+ * @return {module:OrbitDB~OrbitDB} An instance of OrbitDB.
  * @instance
  */
 const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
+  /**
+   * @namespace module:OrbitDB~OrbitDB
+   * @description The instance returned by {@link module:OrbitDB}.
+   */
+     
   if (ipfs == null) {
     throw new Error('IPFS instance is a required argument. See https://github.com/orbitdb/orbit-db/blob/master/API.md#createinstance')
   }
@@ -79,17 +124,29 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   let databases = {}
 
   /**
-   * Open a database or create if one does not already exist.
+   * Open a database or create one if it does not already exist.
+   *
+   * By default, OrbitDB will create a database of type <a href="module-OrbitDB.html#~DefaultDatabaseType">DefaultDatabaseType</a>:
+   * ```
+   * const mydb = await orbitdb.open('mydb')
+   * ```
+   * To create a database of a different type, specify the type param:
+   * ```
+   * const mydb = await orbitdb.open('mydb', {type: 'documents'})
+   * ```
+   * The type must be listed in <a href="module-OrbitDB.html#.databaseTypes">databaseTypes</a> or an error is thrown.
    * @function open
-   * @param {String} address The address of an existing database to open, or 
+   * @param {String} address The address of an existing database to open, or
    * the name of a new database.
    * @param {Object} params One or more database configuration parameters.
    * @param {*} params.meta The database's metadata.
-   * @param {bool} params.sync If true, sync databases automatically.
+   * @param {bool} [params.sync=false] If true, sync databases automatically.
    * Otherwise, false.
-   * @param {module:Database} params.Database A Database-compatible module.
-   * @param {module:AccessControllers} params.AccessController An
-   * AccessController-compatible module.
+   * @param {module:Database} [params.Database=Database] A Database-compatible
+   * module.
+   * @param {module:AccessControllers}
+   * [params.AccessController=DefaultAccessController]
+   * An AccessController-compatible module.
    * @param {module:Storage} [params.headsStorage] A compatible storage
    * instance for storing log heads.
    * @param {module:Storage} [params.entryStorage] A compatible storage instance
@@ -100,6 +157,9 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * references to other entries.
    * @memberof module:OrbitDB
    * @return {module:Database} A database instance.
+   * @throws Unsupported database type if the type specified is not in the list
+   * of known databaseTypes.
+   * @memberof module:OrbitDB~OrbitDB
    * @instance
    * @async
    */
@@ -161,7 +221,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
   /**
    * Stops OrbitDB, closing the underlying keystore and manifest.
    * @function stop
-   * @memberof module:OrbitDB
+   * @memberof module:OrbitDB~OrbitDB
    * @instance
    * @async
    */
