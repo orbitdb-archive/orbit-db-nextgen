@@ -49,7 +49,8 @@ const defaultCacheSize = 1000
  * @param {Identity} [params.identity] An Identity instance.
  * @param {String} [params.address] The address of the database.
  * @param {String} [params.name] The name of the database.
- * @param {AccessControllers} [params.access] An AccessController instance.
+ * @param {module:AccessControllers} [params.access] An AccessController
+ * instance.
  * @param {String} [params.directory] A location for storing Database-related
  * data. Defaults to ./orbitdb/[params.address].
  * @param {*} params.meta The database's metadata.
