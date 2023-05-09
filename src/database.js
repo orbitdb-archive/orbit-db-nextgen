@@ -47,11 +47,11 @@ const defaultCacheSize = 1000
  * @param {Object} params One or more parameters for configuring Database.
  * @param {IPFS} params.ipfs An IPFS instance.
  * @param {Identity} [params.identity] An Identity instance.
- * @param {String} [params.address] The address of the database.
- * @param {String} [params.name] The name of the database.
+ * @param {string} [params.address] The address of the database.
+ * @param {string} [params.name] The name of the database.
  * @param {module:AccessControllers} [params.access] An AccessController
  * instance.
- * @param {String} [params.directory] A location for storing Database-related
+ * @param {string} [params.directory] A location for storing Database-related
  * data. Defaults to ./orbitdb/[params.address].
  * @param {*} params.meta The database's metadata.
  * @param {module:Storage} [params.headsStorage] A compatible storage
@@ -60,9 +60,9 @@ const defaultCacheSize = 1000
  * for storing log entries. Defaults to ComposedStorage.
  * @param {module:Storage} [params.indexStorage] A compatible storage
  * instance for storing an index of log entries. . Defaults to ComposedStorage.
- * @param {Integer} [params.referencesCount]  The maximum distance between
+ * @param {number} [params.referencesCount]  The maximum distance between
  * references to other entries.
- * @param {bool} [params.syncAutomatically=false] If true, sync databases
+ * @param {boolean} [params.syncAutomatically=false] If true, sync databases
  * automatically. Otherwise, false.
  * @param {function} [params.onUpdate] A function callback. Fired when an
  * entry is added to the oplog.
@@ -136,7 +136,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
    * Adds an operation to the oplog.
    * @function addOperation
    * @param {*} op Some operation to add to the oplog.
-   * @return {String} The hash of the operation.
+   * @return {string} The hash of the operation.
    * @memberof module:Database~Database
    * @instance
    * @async

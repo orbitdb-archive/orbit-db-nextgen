@@ -136,8 +136,8 @@ const KeyStore = async ({ storage, path } = {}) => {
 
   /**
    * Checks if the key exists in the key store.
-   * @param {String} id The id of the private key in the key store.
-   * @return {bool} True if the key exists, false otherwise.
+   * @param {string} id The id of the private key in the key store.
+   * @return {boolean} True if the key exists, false otherwise.
    * @throws id needed to check a key if no id is specified.
    * @memberof module:KeyStore~KeyStore
    * @async
@@ -162,7 +162,7 @@ const KeyStore = async ({ storage, path } = {}) => {
 
   /**
    * Adds a key to the keystore.
-   * @param {String} id A storage id for the key.
+   * @param {string} id A storage id for the key.
    * @param {Uint8Array} key The key to store.
    * @memberof module:KeyStore~KeyStore
    * @async
@@ -174,7 +174,7 @@ const KeyStore = async ({ storage, path } = {}) => {
 
   /**
    * Creates a key, storing it to the keystore.
-   * @param {String} id A storage id for the key.
+   * @param {string} id A storage id for the key.
    * @throws id needed to create a key if no id is specified.
    * @memberof module:KeyStore~KeyStore
    * @async
@@ -202,7 +202,7 @@ const KeyStore = async ({ storage, path } = {}) => {
 
   /**
    * Gets the key from keystore.
-   * @param {String} id A storage id of the key.
+   * @param {string} id A storage id of the key.
    * @return {Uint8Array} The key specified by id.
    * @throws id needed to get a key if no id is specified.
    * @memberof module:KeyStore~KeyStore

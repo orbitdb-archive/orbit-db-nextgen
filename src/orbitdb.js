@@ -61,7 +61,7 @@ const databaseTypes = {
  * }
  * addDatabaseType('customDBType', CustomDBTypeModule)
  * @function addDatabaseType
- * @param {String} type The database type.
+ * @param {string} type The database type.
  * @param {module:Database} store A Database-compatible module.
  * @memberof module:OrbitDB
  */
@@ -87,10 +87,10 @@ const DefaultAccessController = IPFSAccessController
  * @function
  * @param {Object} params One or more parameters for configuring OrbitDB.
  * @param {IPFS} params.ipfs An IPFS instance.
- * @param {String} [params.id] The id of the OrbitDB instance.
+ * @param {string} [params.id] The id of the OrbitDB instance.
  * @param {Identity} [params.identity] An Identity instance.
  * @param {namespace:KeyStore} [params.keystore] A KeyStore instance.
- * @param {String} [params.directory] A location for storing OrbitDB-related
+ * @param {string} [params.directory] A location for storing OrbitDB-related
  * data.
  * @return {module:OrbitDB~OrbitDB} An instance of OrbitDB.
  * @throws IPFSinstance is required argument if no IPFS instance is provided.
@@ -130,11 +130,11 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * ```
    * The type must be listed in [databaseTypes]{@link module:OrbitDB.databaseTypes} or an error is thrown.
    * @function open
-   * @param {String} address The address of an existing database to open, or
+   * @param {string} address The address of an existing database to open, or
    * the name of a new database.
    * @param {Object} params One or more database configuration parameters.
    * @param {*} params.meta The database's metadata.
-   * @param {bool} [params.sync=false] If true, sync databases automatically.
+   * @param {boolean} [params.sync=false] If true, sync databases automatically.
    * Otherwise, false.
    * @param {module:Database} [params.Database=Database] A Database-compatible
    * module.
@@ -147,7 +147,7 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * for storing log entries.
    * @param {module:Storage} [params.indexStorage] A compatible storage
    * instance for storing an index of log entries.
-   * @param {Integer} [params.referencesCount]  The maximum distance between
+   * @param {number} [params.referencesCount]  The maximum distance between
    * references to other entries.
    * @memberof module:OrbitDB
    * @return {module:Database} A database instance.

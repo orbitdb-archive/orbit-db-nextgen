@@ -33,7 +33,7 @@ const types = {
 
 /**
  * Gets an access controller module specified by type.
- * @param {String} type A valid access controller type.
+ * @param {string} type A valid access controller type.
  * @return {AccessController} The access controller module.
  */
 const get = (type) => {
@@ -45,8 +45,8 @@ const get = (type) => {
 
 /**
  * Checks whether the access controller exists.
- * @param {String} type A valid access controller type.
- * @return {bool} True if the access controller exists, false otherwise.
+ * @param {string} type A valid access controller type.
+ * @return {boolean} True if the access controller exists, false otherwise.
  */
 const isSupported = type => {
   return Object.keys(types).includes(type)
@@ -76,7 +76,7 @@ const add = (accessController) => {
 
 /**
  * Removes an access controller from the types list.
- * @param {String} type A valid access controller type.
+ * @param {string} type A valid access controller type.
  */
 const remove = type => {
   delete types[type]
