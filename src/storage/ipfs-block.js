@@ -16,18 +16,14 @@ const defaultTimeout = 30000
  * IPFSBlockStorage.
  * @param {IPFS} params.ipfs An IPFS instance.
  * @param {number} [params.timeout=defaultTimeout] A timeout in ms.
- * @param {boolean} [params.pin=false] True, if the block should be pinned, 
+ * @param {boolean} [params.pin=false] True, if the block should be pinned,
  * false otherwise.
- * @returns {module:Storage.Storage-IPFS~IPFSBlockStorage} An instance of IPFSBlockStorage.
+ * @returns {module:Storage.Storage-IPFS} An instance of IPFSBlockStorage.
  * @memberof module:Storage
  * @throw An instance of ipfs is required if params.ipfs is not specified.
  * @instance
  */
 const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
-  /**
-   * @namespace module:Storage.Storage-IPFS~IPFSBlockStorage
-   * @description The instance returned by {@link module:Storage.Storage-IPFS}.
-   */    
   if (!ipfs) throw new Error('An instance of ipfs is required.')
 
   timeout = timeout || defaultTimeout
@@ -37,7 +33,7 @@ const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
    * @function
    * @param {string} hash The hash of the block to put.
    * @param {*} data The data to store in the IPFS block.
-   * @memberof module:Storage.Storage-IPFS~IPFSBlockStorage
+   * @memberof module:Storage.Storage-IPFS
    * @instance
    */
   const put = async (hash, data) => {
@@ -54,6 +50,13 @@ const IPFSBlockStorage = async ({ ipfs, timeout, pin } = {}) => {
 
   const del = async (hash) => {}
 
+  /**
+   * Gets data from an IPFS block.
+   * @function
+   * @param {string} hash The hash of the block to get.
+   * @memberof module:Storage.Storage-IPFS
+   * @instance
+   */
   const get = async (hash) => {
     const cid = CID.parse(hash, base58btc)
     const block = await ipfs.block.get(cid, { timeout })
