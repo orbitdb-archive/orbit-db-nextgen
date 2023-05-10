@@ -12,6 +12,15 @@
  * await ComposedStorage(storage1, await IPFSBlockStorage())
  */
 
+/**
+  * Creates an instance of ComposedStorage.
+  * @function
+  * @param {module:Storage} storage1 A storage instance.
+  * @param {module:Storage} storage2 A storage instance.
+  * @returns {module:Storage.Storage-Composed} An instance of ComposedStorage.
+  * @memberof module:Storage
+  * @instance
+  */
 const ComposedStorage = async (storage1, storage2) => {
   /**
    * Puts data to all configured storages.
@@ -49,9 +58,8 @@ const ComposedStorage = async (storage1, storage2) => {
   }
 
   /**
-   * Gets data from an IPFS block.
+   * Iterates over records stored in both storages.
    * @function
-   * @param {string} hash The hash of the block to get
    * @yields [string, string] The next key/value pair from all storages.
    * @memberof module:Storage.Storage-Composed
    * @instance
@@ -71,7 +79,7 @@ const ComposedStorage = async (storage1, storage2) => {
   /**
    * Merges data from another source into each of the composed storages.
    * @function
-   * @param {Array} other An array of key/value pairs
+   * @param {module:Storage} other Another storage instance.
    * @memberof module:Storage.Storage-Composed
    * @instance
    */
