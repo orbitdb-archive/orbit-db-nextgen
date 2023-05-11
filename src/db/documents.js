@@ -1,7 +1,7 @@
 /**
  * @namespace Database-Documents
  * @memberof module:Database
- * @description Documents database
+ * @description Documents database.
  * @example <caption>Create documents db with default options</caption>
  * import { create } from 'IPFS'
  *

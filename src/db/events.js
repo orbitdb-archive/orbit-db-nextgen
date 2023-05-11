@@ -1,7 +1,7 @@
 /**
  * @namespace Database-Events
  * @memberof module:Database
- * @description Events database
+ * @description Events database.
  */
 import Database from '../database.js'
 
