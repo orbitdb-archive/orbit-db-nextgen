@@ -5,6 +5,13 @@
  * KeyValueIndexed database.
  *
  * Key/value pairs are stored to the configured storage.
+ * @example <caption>Specify a custom storage</caption>
+ * import { create } from 'IPFS'
+ *
+ * const ipfs = create()
+ * const storage = await IPFSBlockStorage()
+ * const Partial = KeyValueIndexed({ storage })
+ * const keyValueIndexed = await Partial({ ipfs })
  */
 import { KeyValue } from './index.js'
 import LevelStorage from '../storage/level.js'
