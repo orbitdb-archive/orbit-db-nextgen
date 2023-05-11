@@ -90,10 +90,6 @@ const verifyMessage = async (signature, publicKey, data) => {
   return res
 }
 
-/**
- * The default KeyStore path './keystore'.
- * @memberof module:KeyStore
- */
 const defaultPath = './keystore'
 
 /**
@@ -102,8 +98,7 @@ const defaultPath = './keystore'
  * @param {Object} [params.storage] An instance of a storage class. Can be one
  * of ComposedStorage, IPFSBlockStorage, LevelStorage, etc. Defaults to
  * ComposedStorage.
- * @param {string} [params.path] The path to a valid storage. Defaults to
- * [defaultPath]{@link module:KeyStore.defaultPath}.
+ * @param {string} [params.path=./keystore] The path to a valid storage.
  * @return {KeyStore} An instance of KeyStore.
  * @instance
  */

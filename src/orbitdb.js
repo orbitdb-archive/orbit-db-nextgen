@@ -72,14 +72,8 @@ const addDatabaseType = (type, store) => {
   databaseTypes[type] = store
 }
 
-/**
- * The default database type 'events'.
- */
 const DefaultDatabaseType = 'events'
 
-/**
- * The default access controller 'IPFSAccessController'.
- */
 const DefaultAccessController = IPFSAccessController
 
 /**
@@ -129,24 +123,24 @@ const OrbitDB = async ({ ipfs, id, identity, keystore, directory } = {}) => {
    * const mydb = await orbitdb.open('mydb', {type: 'documents'})
    * ```
    * The type must be listed in [databaseTypes]{@link module:OrbitDB.databaseTypes} or an error is thrown.
-   * @function open
+   * @function
    * @param {string} address The address of an existing database to open, or
    * the name of a new database.
    * @param {Object} params One or more database configuration parameters.
-   * @param {*} params.meta The database's metadata.
+   * @param {string} [params.type=events] The database's type.
+   * @param {*} [params.meta={}] The database's metadata.
    * @param {boolean} [params.sync=false] If true, sync databases automatically.
    * Otherwise, false.
-   * @param {module:Database} [params.Database=Database] A Database-compatible
+   * @param {module:Database} [params.Database=[Events]{@link module:Database.Database-Events}] A Database-compatible
    * module.
    * @param {module:AccessControllers}
-   * [params.AccessController=DefaultAccessController]
+   * [params.AccessController=IPFSAccessController]
    * An AccessController-compatible module.
-   * @param {module:Storage} [params.headsStorage] A compatible storage
-   * instance for storing log heads.
-   * @param {module:Storage} [params.entryStorage] A compatible storage instance
-   * for storing log entries.
-   * @param {module:Storage} [params.indexStorage] A compatible storage
-   * instance for storing an index of log entries.
+   * @param {module:Storage} [params.headsStorage=[ComposedStorage]{@link module:Storage.Storage-Composed}] A compatible storage instance for storing
+   * log heads. Defaults to ComposedStorage(LRUStorage, IPFSBlockStorage).
+   * @param {module:Storage} [params.entryStorage=[ComposedStorage]{@link module:Storage.Storage-Composed}] A compatible storage instance for storing
+   * log entries. Defaults to ComposedStorage(LRUStorage, LevelStorage).
+   * @param {module:Storage} [params.indexStorage=[ComposedStorage]{@link module:Storage.Storage-Composed}] A compatible storage instance for storing an " index of log entries. Defaults to ComposedStorage(LRUStorage, LevelStorage).
    * @param {number} [params.referencesCount]  The maximum distance between
    * references to other entries.
    * @memberof module:OrbitDB

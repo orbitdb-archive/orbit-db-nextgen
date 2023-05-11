@@ -60,7 +60,7 @@ const defaultCacheSize = 1000
  * for storing log entries. Defaults to ComposedStorage.
  * @param {module:Storage} [params.indexStorage] A compatible storage
  * instance for storing an index of log entries. Defaults to ComposedStorage.
- * @param {number} [params.referencesCount]  The maximum distance between
+ * @param {number} [params.referencesCount=16]  The maximum distance between
  * references to other entries.
  * @param {boolean} [params.syncAutomatically=false] If true, sync databases
  * automatically. Otherwise, false.

@@ -17,9 +17,6 @@ import { KeyValue } from './index.js'
 import LevelStorage from '../storage/level.js'
 import pathJoin from '../utils/path-join.js'
 
-/**
- * Default value encoding of 'json'.
- */
 const valueEncoding = 'json'
 
 /**

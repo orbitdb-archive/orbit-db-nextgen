@@ -18,11 +18,6 @@
  */
 import Database from '../database.js'
 
-/**
- * The default documents options.
- *
- * { indexBy: '_id' }
- */
 const DefaultOptions = { indexBy: '_id' }
 
 /**
