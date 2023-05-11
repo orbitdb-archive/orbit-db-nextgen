@@ -1,7 +1,7 @@
 /**
  * @namespace Database-Documents
  * @memberof module:Database
- * @description Documents Database
+ * @description Documents database
  * @example <caption>Create documents db with default options</caption>
  * import { create } from 'IPFS'
  *
@@ -27,7 +27,6 @@ const DefaultOptions = { indexBy: '_id' }
 
 /**
  * Creates an instance of Documents.
- *
  * @callback Documents
  * @param {Object} params
  * @param {IPFS} params.ipfs An IPFS instance.
@@ -57,12 +56,12 @@ const DefaultOptions = { indexBy: '_id' }
  */
 
 /**
-  * Defines a Documents database.
-  * @param {Object} options Various options for configuring the document store.
-  * @param {string} [params.indexBy=_id] An index.
-  * @returns {module:Database.Database-Documents} A Documents function.
-  * @memberof module:Database
-  */
+ * Defines a Documents database.
+ * @param {Object} options Various options for configuring the Document store.
+ * @param {string} [params.indexBy=_id] An index.
+ * @returns {module:Database.Database-Documents} A Documents function.
+ * @memberof module:Database
+ */
 const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => {
   const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically })
 
@@ -138,7 +137,9 @@ const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, add
   /**
    * Iterates over documents.
    * @function
-   * @yields [string, string, string] The next hash/key/value document.
+   * @params {Object} [filters={}] Various filters to apply to the iterator.
+   * @params {string} [filters.amount=-1] The number of results to fetch.
+   * @yields [string, string, string] The next document as hash/key/value.
    * @memberof module:Database.Database-Documents
    * @instance
    */
@@ -164,7 +165,8 @@ const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, add
   /**
    * Returns all documents.
    * @function
-   * @returns [][string, string, string] An array of hash/key/value documents.
+   * @returns [][string, string, string] An array of documents as hash/key
+   * value entries.
    * @memberof module:Database.Database-Documents
    * @instance
    */
