@@ -2,7 +2,7 @@
  * @module Database
  * @description
  * Database is the base class for OrbitDB data stores and handles all lower
- * level add operations and database sync-ing via IPFs.
+ * level add operations and database sync-ing using IPFS.
  *
  * Database should be instantiated and initialized when implementing a
  * compatible datastore:
@@ -53,13 +53,13 @@ const defaultCacheSize = 1000
  * instance.
  * @param {string} [params.directory] A location for storing Database-related
  * data. Defaults to ./orbitdb/[params.address].
- * @param {*} params.meta The database's metadata.
+ * @param {*} [params.meta={}] The database's metadata.
  * @param {module:Storage} [params.headsStorage] A compatible storage
  * instance for storing log heads. Defaults to ComposedStorage.
  * @param {module:Storage} [params.entryStorage] A compatible storage instance
  * for storing log entries. Defaults to ComposedStorage.
  * @param {module:Storage} [params.indexStorage] A compatible storage
- * instance for storing an index of log entries. . Defaults to ComposedStorage.
+ * instance for storing an index of log entries. Defaults to ComposedStorage.
  * @param {number} [params.referencesCount]  The maximum distance between
  * references to other entries.
  * @param {boolean} [params.syncAutomatically=false] If true, sync databases
