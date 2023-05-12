@@ -30,6 +30,8 @@
  *
  * export default CustomDataStore
  * ```
+ * The functions put and get are recommended but not mandatory. For example,
+ * the Events data store uses a function called `add`.
  */
 import { EventEmitter } from 'events'
 import PQueue from 'p-queue'
