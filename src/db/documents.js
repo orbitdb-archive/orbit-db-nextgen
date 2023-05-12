@@ -23,7 +23,7 @@ const DefaultOptions = { indexBy: '_id' }
 /**
  * Creates an instance of Documents.
  * @callback Documents
- * @param {Object} params
+ * @param {Object} params One or more parameters for configuring Database.
  * @param {IPFS} params.ipfs An IPFS instance.
  * @param {Identity} [params.identity] An Identity instance.
  * @param {string} [params.address] The address of the database.

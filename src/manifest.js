@@ -1,8 +1,8 @@
 /**
  * @module Manifest
  * @description
- * A manifest provides an OrbitDB database with various descriptive information 
- * including access controls and metadata. 
+ * A manifest provides an OrbitDB database with various descriptive information
+ * including access controls and metadata.
  */
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -38,7 +38,7 @@ const Manifest = async ({ ipfs, storage } = {}) => {
    * Gets the manifest data from the underlying storage.
    * @param {string} address The address of the manifest.
    * @returns {*} The manifest data.
-   * @memberof module:Manifest~Manifest   
+   * @memberof module:Manifest~Manifest
    */
   const get = async (address) => {
     const bytes = await storage.get(address)
