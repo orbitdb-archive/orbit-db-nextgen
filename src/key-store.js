@@ -200,7 +200,7 @@ const KeyStore = async ({ storage, path } = {}) => {
    * @async
    * @instance
    */
-  const createKey = async (id, { entropy } = {}) => {
+  const createKey = async (id) => {
     if (!id) {
       throw new Error('id needed to create a key')
     }
