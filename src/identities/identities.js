@@ -2,7 +2,7 @@
  * @module Identities
  * @description
  * Identities provides a framework for generating and managing identity
- * providers.
+ * details and providers.
  */
 
 import Identity, { isIdentity, isEqual, decodeIdentity } from './identity.js'
@@ -104,7 +104,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
    * Verifies an identity using the identity's provider.
    * @param {Identity} identity The identity to verify.
    * @returns {boolean} True the identity is valid, false otherwise.
-   * @memberof module:Identities~Identities   
+   * @memberof module:Identities~Identities
    */
   const verifyIdentity = async (identity) => {
     if (!isIdentity(identity)) {
@@ -138,9 +138,9 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
    * @param {Identity} identity The identity to use for signing.
    * @param {string} data The data to sign.
    * @returns {string} The signed data.
-   * @throws Private signing key not fund from KeyStore when no signing key can 
+   * @throws Private signing key not fund from KeyStore when no signing key can
    * be retrieved.
-   * @memberof module:Identities~Identities   
+   * @memberof module:Identities~Identities
    * @instance
    */
   const sign = async (identity, data) => {
@@ -170,7 +170,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
 /**
  * Checks whether an identity provider is supported.
  * @param {string} type The identity provider type.
- * @returns {boolean} True if the identity provider is supported, false 
+ * @returns {boolean} True if the identity provider is supported, false
  * otherwise.
  * @static
  */
@@ -181,9 +181,9 @@ const isProviderSupported = (type) => {
 /**
  * Gets an identity provider.
  * @param {string} type The identity provider type.
- * @returns {IdentityProvider} The IdentityProvider module corresponding to 
+ * @returns {IdentityProvider} The IdentityProvider module corresponding to
  * type.
- * @throws IdentityProvider type is not supported if the identity provider is 
+ * @throws IdentityProvider type is not supported if the identity provider is
  * not supported.
  * @static
  */
@@ -198,9 +198,9 @@ const getProviderFor = (type) => {
 /**
  * Adds an identity provider.
  * @param {IdentityProvider} IdentityProvider The identity provider to add.
- * @throws IdentityProvider must be given as an argument if no module is 
+ * @throws IdentityProvider must be given as an argument if no module is
  * provided.
- * @throws 'Given IdentityProvider doesn't have a field 'type' if the 
+ * @throws 'Given IdentityProvider doesn't have a field 'type' if the
  * IdentityProvider does not include a type property.
  * @static
  */
