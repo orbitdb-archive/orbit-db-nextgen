@@ -21,7 +21,7 @@ const hashStringEncoding = base58btc
  * @param {Clock} [clock] The clock
  * @param {Array<string|Entry>} [next=[]] An array of CIDs as base58btc encoded strings
  * @param {Array<string|Entry>} [refs=[]] An array of CIDs as base58btc encoded strings
- * @returns {Promise<Entry>}
+ * @return {Promise<Entry>}
  * @example
  * const entry = await Entry.create(identity, 'log1', 'hello')
  * console.log(entry)
@@ -84,7 +84,7 @@ const verify = async (identities, entry) => {
 /**
  * Check if an object is an Entry.
  * @param {Entry} obj
- * @returns {boolean}
+ * @return {boolean}
  */
 const isEntry = (obj) => {
   return obj && obj.id !== undefined &&
@@ -102,7 +102,7 @@ const isEqual = (a, b) => {
 /**
  * Decode a serialized Entry from bytes
  * @param {Uint8Array} bytes
- * @returns {Entry}
+ * @return {Entry}
  */
 const decode = async (bytes) => {
   const { value } = await Block.decode({ bytes, codec, hasher })
@@ -112,7 +112,7 @@ const decode = async (bytes) => {
 /**
  * Encode an Entry to a serializable form
  * @param {Entry} entry
- * @returns {TODO}
+ * @return {TODO}
  */
 const _encodeEntry = async (entry) => {
   const { cid, bytes } = await Block.encode({ value: entry, codec, hasher })

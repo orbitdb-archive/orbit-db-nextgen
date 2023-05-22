@@ -80,7 +80,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
 
   /**
    * Returns the clock of the log.
-   * @returns {Clock}
+   * @return {Clock}
    * @memberof module:Log~Log
    * @instance
    */
@@ -93,7 +93,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   /**
    * Returns the current heads of the log
    *
-   * @returns {Array<module:Log~Entry>}
+   * @return {Array<module:Log~Entry>}
    * @memberof module:Log~Log
    * @instance
    */
@@ -105,7 +105,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   /**
    * Returns all entries in the log
    *
-   * @returns {Array<module:Log~Entry>}
+   * @return {Array<module:Log~Entry>}
    * @memberof module:Log~Log
    * @instance
    */
@@ -121,7 +121,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    * Retrieve an entry
    *
    * @param {string} hash The hash of the entry to retrieve
-   * @returns {module:Log~Entry}
+   * @return {module:Log~Entry}
    * @memberof module:Log~Log
    * @instance
    */
@@ -353,7 +353,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    * @param {string} options.gte Beginning hash of the iterator, inclusive
    * @param {string} options.lt Ending hash of the iterator, non-inclusive
    * @param {string} options.lte Ending hash of the iterator, inclusive
-   * @returns {Symbol.asyncIterator} Iterator object of log entries
+   * @return {Symbol.asyncIterator} Iterator object of log entries
    *
    * @examples
    *
@@ -473,7 +473,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   /**
    * Check if an object is a Log.
    * @param {Log} obj
-   * @returns {boolean}
+   * @return {boolean}
    * @memberof module:Log~Log
    * @instance
    */

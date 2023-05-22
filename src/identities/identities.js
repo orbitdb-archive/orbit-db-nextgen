@@ -36,7 +36,7 @@ const supportedTypes = {
  * module.
  * @param {IPFS} [params.ipfs] An instance of IPFS. This param is not required
  * if storage is provided.
- * @returns {module:Identities~Identities} An instance of Identities.
+ * @return {module:Identities~Identities} An instance of Identities.
  * @instance
  */
 const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
@@ -58,7 +58,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
   /**
    * Gets an identity by hash.
    * @param {string} hash An identity hash.
-   * @returns {Identity} An instance of identity.
+   * @return {Identity} An instance of identity.
    * @memberof module:Identities~Identities
    * @instance
    */
@@ -73,7 +73,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
    * Creates an identity, adding it to storage.
    * @param {Object} options Various options for configuring a new identity.
    * @param {string} [options.type=publickey] The type of provider to use for generating an identity.
-   * @returns {Identity} An instance of identity.
+   * @return {Identity} An instance of identity.
    * @memberof module:Identities~Identities
    * @instance
    */
@@ -103,7 +103,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
   /**
    * Verifies an identity using the identity's provider.
    * @param {Identity} identity The identity to verify.
-   * @returns {boolean} True the identity is valid, false otherwise.
+   * @return {boolean} True the identity is valid, false otherwise.
    * @memberof module:Identities~Identities
    */
   const verifyIdentity = async (identity) => {
@@ -137,7 +137,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
    * Signs data using an identity.
    * @param {Identity} identity The identity to use for signing.
    * @param {string} data The data to sign.
-   * @returns {string} The signed data.
+   * @return {string} The signed data.
    * @throws Private signing key not fund from KeyStore when no signing key can
    * be retrieved.
    * @memberof module:Identities~Identities
@@ -170,7 +170,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
 /**
  * Checks whether an identity provider is supported.
  * @param {string} type The identity provider type.
- * @returns {boolean} True if the identity provider is supported, false
+ * @return {boolean} True if the identity provider is supported, false
  * otherwise.
  * @static
  */
@@ -181,7 +181,7 @@ const isProviderSupported = (type) => {
 /**
  * Gets an identity provider.
  * @param {string} type The identity provider type.
- * @returns {IdentityProvider} The IdentityProvider module corresponding to
+ * @return {IdentityProvider} The IdentityProvider module corresponding to
  * type.
  * @throws IdentityProvider type is not supported if the identity provider is
  * not supported.
