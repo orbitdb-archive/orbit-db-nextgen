@@ -13,7 +13,7 @@ import KeyStore, { signMessage, verifyMessage } from '../key-store.js'
 import { LRUStorage, IPFSBlockStorage, MemoryStorage, ComposedStorage } from '../storage/index.js'
 import pathJoin from '../utils/path-join.js'
 
-const DefaultProviderType = PublicKeyIdentityProvider.type
+const DefaultProviderType = 'publickey'
 const DefaultIdentityKeysPath = pathJoin('./orbitdb', 'identities')
 
 const supportedTypes = {
@@ -72,7 +72,7 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
   /**
    * Creates an identity, adding it to storage.
    * @param {Object} options Various options for configuring a new identity.
-   * @param {string} [options.type=PublicKeyIdentityProvider.type] The type of provider to use for generating an identity.
+   * @param {string} [options.type=publickey] The type of provider to use for generating an identity.
    * @returns {Identity} An instance of identity.
    * @memberof module:Identities~Identities
    * @instance
@@ -81,8 +81,8 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
     options.keystore = keystore
 
     const type = options.type || DefaultProviderType
-    const Provider = getProviderFor(type)
-    const identityProvider = new Provider(options)
+    const Provider = getProviderFor(type).default
+    const identityProvider = Provider(options)
     const id = await identityProvider.getId(options)
     const privateKey = await keystore.getKey(id) || await keystore.createKey(id)
     const publicKey = keystore.getPublic(privateKey)

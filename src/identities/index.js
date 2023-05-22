@@ -12,4 +12,4 @@ export {
   isEqual
 } from './identity.js'
 
-export { default as PublicKeyIdentityProvider } from './providers/publickey.js'
+export { PublicKeyIdentityProvider } from './providers/index.js'
