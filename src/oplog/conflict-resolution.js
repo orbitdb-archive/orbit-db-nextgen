@@ -1,4 +1,4 @@
-import Clock from './clock.js'
+import { compareClocks } from './clock.js'
 
 /**
  * Sort two entries as Last-Write-Wins (LWW).
@@ -31,7 +31,7 @@ function LastWriteWins (a, b) {
  */
 function SortByClocks (a, b, resolveConflict) {
   // Compare the clocks
-  const diff = Clock.compare(a.clock, b.clock)
+  const diff = compareClocks(a.clock, b.clock)
   // If the clocks are concurrent, use the provided
   // conflict resolution function to determine which comes first
   return diff === 0 ? resolveConflict(a, b) : diff

@@ -33,7 +33,7 @@ const create = async (identity, id, payload, clock = null, next = [], refs = [])
   if (payload == null) throw new Error('Entry requires a payload')
   if (next == null || !Array.isArray(next)) throw new Error("'next' argument is not an array")
 
-  clock = clock || new Clock(identity.publicKey)
+  clock = clock || Clock(identity.publicKey)
 
   const entry = {
     id, // For determining a unique chain
@@ -117,7 +117,7 @@ const decode = async (bytes) => {
 const _encodeEntry = async (entry) => {
   const { cid, bytes } = await Block.encode({ value: entry, codec, hasher })
   const hash = cid.toString(hashStringEncoding)
-  const clock = new Clock(entry.clock.id, entry.clock.time)
+  const clock = Clock(entry.clock.id, entry.clock.time)
   return {
     ...entry,
     clock,

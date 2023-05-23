@@ -9,7 +9,7 @@
  */
 import LRU from 'lru'
 import Entry from './entry.js'
-import Clock from './clock.js'
+import Clock, { tickClock } from './clock.js'
 import Heads from './heads.js'
 import ConflictResolution from './conflict-resolution.js'
 import MemoryStorage from '../storage/memory.js'
@@ -87,7 +87,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
   const clock = async () => {
     // Find the latest clock from the heads
     const maxTime = Math.max(0, (await heads()).reduce(maxClockTimeReducer, 0))
-    return new Clock(identity.publicKey, maxTime)
+    return Clock(identity.publicKey, maxTime)
   }
 
   /**
@@ -169,7 +169,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
       identity,
       id,
       data,
-      (await clock()).tick(),
+      tickClock(await clock()),
       nexts,
       refs
     )
