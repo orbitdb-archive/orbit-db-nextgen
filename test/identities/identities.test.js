@@ -17,7 +17,7 @@ describe('Identities', function () {
 
   afterEach(async () => {
     // reset the identityProviders.
-    for (const [ key ] of Object.entries(identityProviders)) {
+    for (const [key] of Object.entries(identityProviders)) {
       if (key !== 'publickey') {
         delete identityProviders[key]
       }
