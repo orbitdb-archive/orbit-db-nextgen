@@ -6,7 +6,7 @@ import waitFor from './utils/wait-for.js'
 import createHelia from './utils/create-helia.js'
 
 describe('Replicating databases', function () {
-  this.timeout(30000)
+  this.timeout(60000)
 
   let ipfs1, ipfs2
   let orbitdb1, orbitdb2
@@ -20,6 +20,12 @@ describe('Replicating databases', function () {
   })
 
   after(async () => {
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 1000)
+    })
+
     await ipfs1.stop()
     await ipfs2.stop()
     await orbitdb1.stop()

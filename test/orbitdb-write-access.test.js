@@ -34,6 +34,12 @@ describe('Write Permissions', function () {
       await orbitdb2.stop()
     }
 
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 1000)
+    })
+
     if (ipfs1) {
       await ipfs1.stop()
     }

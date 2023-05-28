@@ -41,6 +41,12 @@ describe('KeyValue Database Replication', function () {
   })
 
   after(async () => {
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 1000)
+    })
+
     if (ipfs1) {
       await ipfs1.stop()
     }

@@ -10,7 +10,7 @@ describe('IPFSAccessController', function () {
   const dbPath1 = './orbitdb/tests/ipfs-access-controller/1'
   const dbPath2 = './orbitdb/tests/ipfs-access-controller/2'
 
-  this.timeout(30000)
+  this.timeout(5000)
 
   let ipfs1, ipfs2
   let keystore1, keystore2
@@ -37,6 +37,12 @@ describe('IPFSAccessController', function () {
   })
 
   after(async () => {
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 1000)
+    })
+
     if (ipfs1) {
       await ipfs1.stop()
     }

@@ -13,7 +13,7 @@ import MemoryStorage from '../src/storage/memory.js'
 const keysPath = './testkeys'
 
 describe('Database - Replication', function () {
-  this.timeout(60000)
+  this.timeout(5000)
 
   let ipfs1, ipfs2
   let keystore
@@ -56,6 +56,12 @@ describe('Database - Replication', function () {
 
       await rmrf('./orbitdb2')
     }
+
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 1000)
+    })
 
     if (ipfs1) {
       await ipfs1.stop()
