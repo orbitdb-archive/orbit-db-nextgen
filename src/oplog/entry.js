@@ -18,7 +18,7 @@ const hashStringEncoding = base58btc
  * @param {Identity} identity The identity instance
  * @param {string} logId The unique identifier for this log
  * @param {*} data Data of the entry to be added. Can be any JSON.stringifyable data
- * @param {Clock} [clock] The clock
+ * @param {module:Clock} [clock] The clock
  * @param {Array<string|Entry>} [next=[]] An array of CIDs as base58btc encoded strings
  * @param {Array<string|Entry>} [refs=[]] An array of CIDs as base58btc encoded strings
  * @return {Promise<Entry>}
