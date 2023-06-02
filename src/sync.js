@@ -210,7 +210,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
             timeoutController.clear()
           }
         }
-    } else {{String}
+      } else {
         peers.delete(peerId)
         events.emit('leave', peerId)
       }
