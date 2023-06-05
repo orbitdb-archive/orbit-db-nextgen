@@ -1,5 +1,6 @@
 import { createHelia } from 'helia'
 import { createLibp2p } from 'libp2p'
+import { identifyService } from 'libp2p/identify'
 import { webSockets } from '@libp2p/websockets'
 import { webRTCStar } from '@libp2p/webrtc-star'
 import { all } from '@libp2p/websockets/filters'
@@ -15,7 +16,10 @@ export default async () => {
     transports: [webSockets({ filter: all }), wrtcStar.transport],
     connectionEncryption: [noise()],
     streamMuxers: [mplex()],
-    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    services: {
+      identify: identifyService(),
+      pubsub: gossipsub({ allowPublishToZeroPeers: true })
+    },
     addresses: {
       listen: [isBrowser() ? '/ip4/0.0.0.0/tcp/12345/ws/p2p-webrtc-star' : '/ip4/0.0.0.0/tcp/0/ws']
     }

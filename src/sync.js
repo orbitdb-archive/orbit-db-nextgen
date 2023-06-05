@@ -141,8 +141,10 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
   let started = false
 
   const onPeerJoined = async (peerId) => {
-    const heads = await log.heads()
-    events.emit('join', peerId, heads)
+    if (started) {
+      const heads = await log.heads()
+      events.emit('join', peerId, heads)
+    }
   }
 
   const sendHeads = async (source) => {
@@ -245,7 +247,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
    */
   const add = async (entry) => {
     if (started) {
-      await ipfs.libp2p.pubsub.publish(address, entry.bytes)
+      await ipfs.libp2p.services.pubsub.publish(address, entry.bytes)
     }
   }
 
@@ -258,10 +260,10 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
   const stopSync = async () => {
     if (started) {
       await queue.onIdle()
-      ipfs.libp2p.pubsub.removeEventListener('subscription-change', handlePeerSubscribed)
+      ipfs.libp2p.services.pubsub.removeEventListener('subscription-change', handlePeerSubscribed)
       await ipfs.libp2p.unhandle(headsSyncAddress)
-      await ipfs.libp2p.pubsub.unsubscribe(address)
-      ipfs.libp2p.pubsub.removeEventListener('message', handleUpdateMessage)
+      await ipfs.libp2p.services.pubsub.unsubscribe(address)
+      ipfs.libp2p.services.pubsub.removeEventListener('message', handleUpdateMessage)
       peers.clear()
       started = false
     }
@@ -277,10 +279,10 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
     if (!started) {
       // Exchange head entries with peers when connected
       await ipfs.libp2p.handle(headsSyncAddress, handleReceiveHeads)
-      ipfs.libp2p.pubsub.addEventListener('subscription-change', handlePeerSubscribed)
-      // Subscribe to the pubsub channel for this database through which updates are sent
-      await ipfs.libp2p.pubsub.subscribe(address)
-      ipfs.libp2p.pubsub.addEventListener('message', handleUpdateMessage)
+      ipfs.libp2p.services.pubsub.addEventListener('subscription-change', handlePeerSubscribed)
+      // Subscribe to the services.pubsub channel for this database through which updates are sent
+      await ipfs.libp2p.services.pubsub.subscribe(address)
+      ipfs.libp2p.services.pubsub.addEventListener('message', handleUpdateMessage)
       started = true
     }
   }
