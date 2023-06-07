@@ -9,7 +9,7 @@
 <div id="mocha"></div>
 
 <script>
-  mocha.setup({ ui: "bdd", globals: ['sprintf', 'vsprintf'] })
+  mocha.setup({ ui: "bdd", globals: ['sprintf', 'vsprintf', '__ariaQuerySelector', '__ariaQuerySelectorAll'] })
   mocha.checkLeaks()
 </script>
 <script src="./bundle.js"></script>

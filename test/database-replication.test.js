@@ -12,7 +12,7 @@ import MemoryStorage from '../src/storage/memory.js'
 
 const keysPath = './testkeys'
 
-describe.only('Database - Replication', function () {
+describe('Database - Replication', function () {
   this.timeout(5000)
 
   let ipfs1, ipfs2

@@ -13,12 +13,13 @@ const isBrowser = () => typeof window !== 'undefined'
 export default async () => {
   const wrtcStar = webRTCStar()
   const libp2p = await createLibp2p({
+    connectionGater: { denyDialMultiaddr: () => false },
     transports: [webSockets({ filter: all }), wrtcStar.transport],
     connectionEncryption: [noise()],
     streamMuxers: [mplex()],
     services: {
       identify: identifyService(),
-      pubsub: gossipsub({ allowPublishToZeroPeers: true })
+      pubsub: gossipsub()
     },
     addresses: {
       listen: [isBrowser() ? '/ip4/0.0.0.0/tcp/12345/ws/p2p-webrtc-star' : '/ip4/0.0.0.0/tcp/0/ws']
