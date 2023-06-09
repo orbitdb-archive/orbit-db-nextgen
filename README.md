@@ -82,9 +82,8 @@ import OrbitDB from 'orbit-db'
 
   // Listen for updates from peers
   db.events.on("update", entry => {
-    for await (const record of db.iterator()) {
-      all.unshift(record)
-    }
+    console.log(entry)
+    console.log(await db.all({ limit: 1 }))
   })
 
   // Add an entry
@@ -92,9 +91,7 @@ import OrbitDB from 'orbit-db'
   console.log(hash)
 
   // Query
-  for await (const record of db.iterator()) {
-    all.unshift(record)
-  }
+  console.log(await db.all({ limit: 1 }))
   
   await db.close()
   await orbitdb.stop()
