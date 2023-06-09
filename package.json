@@ -16,7 +16,7 @@
     "dist"
   ],
   "type": "module",
-  "main": "src/orbitdb.js",
+  "main": "src/index.js",
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
     "@libp2p/crypto": "^1.0.12",
