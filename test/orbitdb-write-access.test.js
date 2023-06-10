@@ -8,6 +8,7 @@ import waitFor from './utils/wait-for.js'
 import connectPeers from './utils/connect-nodes.js'
 import IPFSAccessController from '../src/access-controllers/ipfs.js'
 import OrbitDBAccessController from '../src/access-controllers/orbitdb.js'
+import Identities from '../src/identities/identities.js'
 
 const dbPath = './orbitdb/tests/write-permissions'
 
@@ -217,5 +218,19 @@ describe('Write Permissions', function () {
 
     await db1.close()
     await db2.close()
+  })
+  
+  
+  describe.only('Custom Identities', () => {
+    before(async () => {
+      const identities = await Identities()
+      const identity = await identities.createIdentity({ id: 'userA' }) 
+      orbitdb1 = await OrbitDB({ ipfs: ipfs1, identity })
+    })
+      
+    it('opens a db with an existing identity', async () => {
+      const db = await orbitdb1.open('my-db')
+      await db.add('test')      
+    })
   })
 })
