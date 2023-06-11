@@ -39,7 +39,7 @@ For various security reasons, a browser cannot dial another peer over a raw TCP 
 On the server, listen for incoming websocket connections:
 
 ```javascript
-import { WebSockets } from '@libp2p/websockets'
+import { webSockets } from '@libp2p/websockets'
 import { create } from 'ipfs-core'
 
 ipfs1 = await create({ 
@@ -49,7 +49,7 @@ ipfs1 = await create({
         '/ip4/0.0.0.0/tcp/0/wss'
       ]
     },
-    transports: [new WebSockets()] 
+    transports: [webSockets()] 
   },
   repo: './ipfs1'
 })
@@ -59,7 +59,7 @@ Within the browser, dial into the server using the server's exposed web socket:
 
 ```javascript
 // import the following libraries if using a build environment such as vite.
-import { WebSockets } from '@libp2p/websockets'
+import { webSockets } from '@libp2p/websockets'
 import { create } from 'ipfs-core'
 
 const ws = new webSockets()
@@ -72,12 +72,12 @@ ipfs1 = await create({
 })
 ```
 
-Those running in development environments may find IPFS is unable to connect to a local WebRTC Star server. This is because WebSockets filters out localhost. To solve this issue, pass the `all` filter to WebSockets:
+You may find IPFS is unable to connect to a local WebRTC Star server. This will likely to due to the local WebSockets transport being insecure (ws instead of wss). To solve this issue, pass the `all` filter to the `webSockets` function:
 
 ```
 import { all } from '@libp2p/websockets/filters'
 
-const ws = new webSockets({ filter: all })
+const ws = webSockets({ filter: all })
 ```
 
 ## Browser to Browser and Node Daemon to Browser
@@ -99,7 +99,7 @@ import { multiaddr } from 'multiaddr'
 ipfs = await create({
   config: {
     Addresses: { 
-      Swarm: ['/ip4/0.0.0.0/tcp/12345/wss/p2p-webrtc-star']
+      Swarm: ['/ip4/0.0.0.0/tcp/12345/ws/p2p-webrtc-star']
     }
   }
 })
@@ -114,7 +114,7 @@ import { multiaddr } from 'multiaddr'
 ipfs = await create({
   config: {
     Addresses: { 
-      Swarm: ['/ip4/0.0.0.0/tcp/12345/wss/p2p-webrtc-star']
+      Swarm: ['/ip4/0.0.0.0/tcp/12345/ws/p2p-webrtc-star']
     }
   }
 })
