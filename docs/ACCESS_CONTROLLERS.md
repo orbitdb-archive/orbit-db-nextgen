@@ -51,7 +51,7 @@ const orbitdb = await OrbitDB({ ipfs, id: 'userA' })
 const IPFSAccessController = getAccessController('ipfs')
 
 // Open a db with write access for userA and userB.
-const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write: [orbitdb.identity.id, anotherIdentity.id]) })
+const db = orbitdb.open('my-db', { AccessController: IPFSAccessController({ write: [orbitdb.identity.id, anotherIdentity.id]) })
 ```
 
 To allow anyone to write to the database, specify the wildcard '*':
@@ -66,7 +66,7 @@ const orbitdb = await OrbitDB({ ipfs })
 
 const IPFSAccessController = getAccessController('ipfs')
 
-const db = orbitdb.open('my-db', { AccessController: IPFSAccessController(write: ['*']) })
+const db = orbitdb.open('my-db', { AccessController: IPFSAccessController({ write: ['*'] }) })
 ```
 
 ## OrbitDB Access Controller
@@ -87,7 +87,7 @@ const anotherIdentity = identities.createIdentity('userB')
 // Retrieve the access controller from the list of preloaded ACs.
 const OrbitDBAccessController = getAccessController('orbitdb')
 
-const db = orbitdb.open('my-db', { AccessController: OrbitDBAccessController(write: [orbitdb.identity.id, anotherIdentity.id]) })
+const db = orbitdb.open('my-db', { AccessController: OrbitDBAccessController({ write: [orbitdb.identity.id, anotherIdentity.id]) })
 
 db.access.grant('write', anotherIdentity.id)
 db.access.revoke('write', anotherIdentity.id)
