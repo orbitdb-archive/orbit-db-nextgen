@@ -20,7 +20,7 @@ orbitdb.open('my-db', { type })
 
 If no type is specified, Events will the default database type.
 
-### Address
+## Address
 
 When a database is created, it is assigned an address by OrbitDB. The address consists of three parts:
 
@@ -43,7 +43,7 @@ console.log(db.address)
 // /orbitdb/zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL
 ```
 
-### Manifest
+## Manifest
 
 The second part of the address, the IPFS multihash `zdpuAmrcSRUhkQcnRQ6p4bphs7DJWGBkqczSGFYynX6moTcDL`, is also the hash of the database's manifest. The manifest contains information about the database such as name, type and other metadata. It also contains a reference to the access controller, which is made up of the type and the hash of the access controller object.
 
