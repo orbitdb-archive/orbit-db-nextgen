@@ -13,7 +13,7 @@ OrbitDB provides four types of data stores:
 
 The type of database can be specified when calling OrbitDB's `open` function by using the `type` parameter:
 
-```
+```js
 const type = 'documents'
 orbitdb.open('my-db', { type })
 ```
@@ -32,7 +32,7 @@ The first part, `/orbitdb`, specifies the protocol in use. The second part, an I
 
 In order to replicate the database with peers, the address is what you need to give to other peers in order for them to start replicating the database.
 
-```javascript
+```js
 import IPFS from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 
@@ -51,12 +51,9 @@ An example of a manifest is given below:
 
 ```json
 {
-  hash: 'zdpuAzzxCWEzRffxFrxNNVkcVFbkmA1EQdpZJJPc3wpjojkAT',
-  manifest: {
-    name: 'my-db',
-    type: 'events',
-    accessController: '/ipfs/zdpuB1TUuF5E81MFChDbRsZZ1A3Kz2piLJwKQ2ddnfZLEBx64'
-  }
+  name: 'my-db',
+  type: 'events',
+  accessController: '/ipfs/zdpuB1TUuF5E81MFChDbRsZZ1A3Kz2piLJwKQ2ddnfZLEBx64'
 }
 ```
 
@@ -70,7 +67,7 @@ A DEL operation describes a record which has been removed. It will share the sam
 
 A PUT record might look like:
 
-```
+```json
 {
   id: 'log-1',
   payload: { op: 'PUT', key: 4, value: 'Some data' },
@@ -93,28 +90,28 @@ In the above example, payload holds the information about the record. `op` is th
 
 Opening a default event store:
 
-```
+```js
 const orbitdb = await OrbitDB()
 await orbitdb.open('my-db')
 ```
 
 Opening a documents database:
 
-```
+```js
 const orbitdb = await OrbitDB()
 await orbitdb.open('my-db', { type: 'documents' })
 ```
 
 Opening a keyvalue database:
 
-```
+```js
 const orbitdb = await OrbitDB()
 await orbitdb.open('my-db', { type: 'keyvalue' })
 ```
 
 Opening a database and adding meta
 
-```
+```js
 const meta = { description: 'A database with metadata.' }
 const orbitdb = await OrbitDB()
 await orbitdb.open('my-db', { meta })
@@ -122,7 +119,7 @@ await orbitdb.open('my-db', { meta })
 
 ## Loading an existing database
 
-```
+```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db')
 db.close()
@@ -135,7 +132,7 @@ const dbReopened = await orbitdb.open(db.address)
 
 All databases expose a common `put` function which is used to add items to the database.
 
-```
+```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db', { type: keyvalue })
 const hash = await db.put('key', 'value')
@@ -143,7 +140,7 @@ const hash = await db.put('key', 'value')
 
 For databases such as Events which is an append-only data store, a `null` key will need to be used:
 
-```
+```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db')
 const hash = await db.put(null, 'event')
@@ -151,7 +148,7 @@ const hash = await db.put(null, 'event')
 
 Alternatively, append-only databases can implement the convenience function `add`:
 
-```
+```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db')
 const hash = await db.add('event')
@@ -161,7 +158,7 @@ const hash = await db.add('event')
 
 To delete an item from a databse, use the `del` function:
 
-```
+```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db', { type: keyvalue })
 const hash = await db.put('key', 'value')
@@ -170,7 +167,7 @@ await db.del(hash)
 
 ## Replicating a database across peers
 
-```
+```js
 import * as IPFS from 'ipfs-core'
 
 const ipfs1 = await IPFS.create({ config1, repo: './ipfs1' })
@@ -187,7 +184,7 @@ const db2 = await orbitdb2.open(db1.address)
 
 OrbitDB can be extended to use custom or third party data stores. To implement a custom database, ensure the Database object is extended and that the OrbitDB database interface is implement. The database will also require a unique type.
 
-```
+```js
 const CustomStore = async ({ OpLog, Database, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically, indexBy = '_id' }) => {
   const database = await Database({ OpLog, ipfs, identity, address, name, access, directory, storage, meta, syncAutomatically })
 
