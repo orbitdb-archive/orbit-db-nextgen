@@ -85,7 +85,8 @@ import OrbitDB from 'orbit-db'
   // Listen for updates from peers
   db.events.on("update", entry => {
     console.log(entry)
-    console.log(await db.all({ limit: 1 }))
+    const all = await db.all()
+    console.log(all)
   })
 
   // Add an entry
