@@ -93,7 +93,7 @@ await orbitdb.open('my-db', { meta })
 ```js
 const orbitdb = await OrbitDB()
 const db = await orbitdb.open('my-db')
-db.close()
+await db.close()
 const dbReopened = await orbitdb.open(db.address)
 ```
 
@@ -101,7 +101,7 @@ const dbReopened = await orbitdb.open(db.address)
 
 ### Adding/Putting items in a database
 
-All databases expose a common `put` function which is used to add items to the database.
+Database types such as **documents** and **keyvalue** expose the `put` function which is used to add items as a key/value combination to the database.
 
 ```js
 const orbitdb = await OrbitDB()
@@ -109,15 +109,7 @@ const db = await orbitdb.open('my-db', { type: keyvalue })
 const hash = await db.put('key', 'value')
 ```
 
-For databases such as Events which is an append-only data store, a `null` key will need to be used:
-
-```js
-const orbitdb = await OrbitDB()
-const db = await orbitdb.open('my-db')
-const hash = await db.put(null, 'event')
-```
-
-Alternatively, append-only databases can implement the convenience function `add`:
+Alternatively, append-only database types such as **events** expose the `add` function which adds a value to the database:
 
 ```js
 const orbitdb = await OrbitDB()
