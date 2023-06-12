@@ -94,7 +94,9 @@ import OrbitDB from 'orbit-db'
   console.log(hash)
 
   // Query
-  console.log(await db.all({ limit: 1 }))
+  for await (const record of db.iterator()) {
+    console.log(record)
+  }
   
   await db.close()
   await orbitdb.stop()
