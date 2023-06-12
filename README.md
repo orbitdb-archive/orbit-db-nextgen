@@ -46,8 +46,6 @@ A Go implementation is developed and maintained by the [Berty](https://github.co
   * [Browser example](#browser-example)
   * [Node.js example](#nodejs-example)
   * [Workshop](#workshop)
-- [Packages](#packages)
-  * [OrbitDB Store Packages](#orbitdb-store-packages)
 - [Development](#development)
   * [Run Tests](#run-tests)
   * [Build](#build)
@@ -158,14 +156,6 @@ See the code in [examples/eventlog.js](https://github.com/orbitdb/orbit-db/blob/
 ```
 node examples/eventlog.js
 ```
-
-## Packages
-
-OrbitDB uses the following modules:
-
-- [ipfs](https://github.com/ipfs/ipfs-core)
-
-Community-maintained Typescript typings are available here: https://github.com/orbitdb/orbit-db-types
 
 ## Development
 
