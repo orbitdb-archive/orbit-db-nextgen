@@ -70,7 +70,7 @@ npm install orbit-db
 If you're using `orbit-db` to develop **browser** or **Node.js** applications, use it as a module with the javascript instance of IPFS.
 
 ```javascript
-import IPFS from 'ipfs'
+import IPFS from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 
 ;(async function () {
