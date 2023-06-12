@@ -79,6 +79,11 @@ import OrbitDB from 'orbit-db'
 
   // Create / Open a database. Defaults to db type "events".
   const db = await orbitdb.open("hello")
+  
+  const address = db.address
+  console.log(address)
+  // "/orbitdb/hash"
+  // The above address can be used on another peer to open the same database
 
   // Listen for updates from peers
   db.events.on("update", entry => {
