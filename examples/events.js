@@ -16,7 +16,7 @@ async function main () {
         pubsub: true,
       },
     })
-    const orbitdb = await OrbitDB({ ipfs, directory: './orbitdb/examples/events' })
+    const orbitdb = await OrbitDB({ ipfs, directory: './orbitdb/examples' })
     db = await orbitdb.open('example')
   } catch (e) {
     console.error(e)
