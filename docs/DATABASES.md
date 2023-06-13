@@ -131,10 +131,11 @@ await db.del(hash)
 ## Replicating a database across peers
 
 ```js
-import * as IPFS from 'ipfs-core'
+import { create } from 'ipfs-core'
+import { OrbitDB } from 'orbit-db'
 
-const ipfs1 = await IPFS.create({ config1, repo: './ipfs1' })
-const ipfs2 = await IPFS.create({ config2, repo: './ipfs2' })
+const ipfs1 = await create({ config1, repo: './ipfs1' })
+const ipfs2 = await create({ config2, repo: './ipfs2' })
 
 orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: './orbitdb1' })
 orbitdb2 = await OrbitDB({ ipfs: ipfs2, id: 'user2', directory: './orbitdb2' })
