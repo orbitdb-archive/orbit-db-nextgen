@@ -16,7 +16,7 @@ OrbitDB provides various types of databases for different data models and use ca
 - **[events](https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdblognameaddress)**: an immutable (append-only) log with traversable history. Useful for *"latest N"* use cases or as a message queue.
 - **[documents](https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbdocsnameaddress-options)**: a document database to which JSON documents can be stored and indexed by a specified key. Useful for building search indices or version controlling documents and data.
 - **[keyvalue](https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbkeyvaluenameaddress)**: a key-value database just like your favourite key-value database.
-- **[keyvalue-indexed](https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbkeyvaluenameaddress)**: a key-value database just like your favourite key-value database.
+- **[keyvalue-indexed](https://github.com/orbitdb/orbit-db/blob/master/API.md#orbitdbkeyvaluenameaddress)**: key-value data indexed in a Level key-value database.
 
 All databases are [implemented](https://github.com/orbitdb/orbit-db-store) on top of [ipfs-log](https://github.com/orbitdb/ipfs-log), an immutable, cryptographically verifiable, operation-based conflict-free replicated data structure ([CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type)) for distributed systems. ipfs-log is formalized in the paper [Merkle-CRDTs](https://arxiv.org/abs/2004.00107). You can also easily extend OrbitDB by [implementing and using a custom data model](https://github.com/orbitdb/orbit-db/blob/master/GUIDE.md#custom-stores) benefitting from the same properties as the default data models provided by the underlying Merkle-CRDTs.
 
@@ -24,6 +24,8 @@ All databases are [implemented](https://github.com/orbitdb/orbit-db-store) on to
 
 * Status: **in active development**
 * Compatible with **ipfs-core versions >= 0.18.0**
+
+***NOTE!*** *js-ipfs and related packages are now superseded by IPFS's Helia project and are no longer being maintained. As part of this migration, OrbitDB will be [switching to Helia](./tree/helia).*
 
 ***NOTE!*** *OrbitDB is **alpha-stage** software. It means OrbitDB hasn't been security audited and programming APIs and data formats can still change. We encourage you to [reach out to the maintainers](https://app.element.io/#/room/#orbit-db:matrix.org) if you plan to use OrbitDB in mission critical systems.*
 
@@ -43,9 +45,6 @@ A Go implementation is developed and maintained by the [Berty](https://github.co
   * [Install dependencies](#install-dependencies)
   * [Browser example](#browser-example)
   * [Node.js example](#nodejs-example)
-  * [Workshop](#workshop)
-- [Packages](#packages)
-  * [OrbitDB Store Packages](#orbitdb-store-packages)
 - [Development](#development)
   * [Run Tests](#run-tests)
   * [Build](#build)
@@ -70,7 +69,7 @@ npm install orbit-db
 If you're using `orbit-db` to develop **browser** or **Node.js** applications, use it as a module with the javascript instance of IPFS.
 
 ```javascript
-import IPFS from 'ipfs'
+import IPFS from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 
 ;(async function () {
@@ -79,11 +78,17 @@ import OrbitDB from 'orbit-db'
 
   // Create / Open a database. Defaults to db type "events".
   const db = await orbitdb.open("hello")
+  
+  const address = db.address
+  console.log(address)
+  // "/orbitdb/hash"
+  // The above address can be used on another peer to open the same database
 
   // Listen for updates from peers
   db.events.on("update", entry => {
     console.log(entry)
-    console.log(await db.all({ limit: 1 }))
+    const all = await db.all()
+    console.log(all)
   })
 
   // Add an entry
@@ -91,7 +96,9 @@ import OrbitDB from 'orbit-db'
   console.log(hash)
 
   // Query
-  console.log(await db.all({ limit: 1 }))
+  for await (const record of db.iterator()) {
+    console.log(record)
+  }
   
   await db.close()
   await orbitdb.stop()
@@ -153,14 +160,6 @@ See the code in [examples/eventlog.js](https://github.com/orbitdb/orbit-db/blob/
 ```
 node examples/eventlog.js
 ```
-
-## Packages
-
-OrbitDB uses the following modules:
-
-- [ipfs](https://github.com/ipfs/ipfs-core)
-
-Community-maintained Typescript typings are available here: https://github.com/orbitdb/orbit-db-types
 
 ## Development
 
