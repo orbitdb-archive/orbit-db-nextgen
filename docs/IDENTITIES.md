@@ -6,7 +6,9 @@ Identities provides methods to manage one or more identities and includes functi
 
 ## Creating an identity
 
-```
+```js
+import { Identities } from 'orbit-db'
+
 const id = 'userA'
 const identities = await Identities()
 const identity = identities.createIdentity({ id })
@@ -14,13 +16,15 @@ const identity = identities.createIdentity({ id })
 
 Once created, the identity can be passed to OrbitDB:
 
-```
+```js
 const orbitdb = await OrbitDB({ identity })
 ```
 
 ##  Specifying a keystore
 
-```
+```js
+import { Identities, KeyStore } from 'orbit-db'
+
 const keystore = await KeyStore()
 const id = 'userA'
 const identities = await Identities({ keystore })
