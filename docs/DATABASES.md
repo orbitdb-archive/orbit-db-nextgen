@@ -215,3 +215,5 @@ const CustomStore = async ({ OpLog, Database, ipfs, identity, address, name, acc
   }
 }
 ```
+
+[Documents](../src/db/documents.js), [Events](../src/db/events.js) and [KeyValue](../src/db/keyvalue.js) provide good examples of how a database is implemented in OrbitDB.
