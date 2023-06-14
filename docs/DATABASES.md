@@ -1,4 +1,4 @@
-# DB
+# Databases
 
 DB provides a variety of different data stores with a common interface.
 
