@@ -119,7 +119,7 @@ const hash = await db.add('event')
 
 ### Removing/Deleting items from a database 
 
-To delete an item from a databse, use the `del` function:
+To delete an item from a database, use the `del` function:
 
 ```js
 const orbitdb = await OrbitDB()
@@ -129,6 +129,10 @@ await db.del(hash)
 ```
 
 ## Replicating a database across peers
+
+The power of OrbitDB lies in its ability to replicate databases across distributed systems that may not always be connected.
+
+A simple replication process between two databases can be accomplished by listening for updates and iterating over the record set as those updates occur.
 
 ```js
 import { create } from 'ipfs-core'
@@ -141,8 +145,28 @@ orbitdb1 = await OrbitDB({ ipfs: ipfs1, id: 'user1', directory: './orbitdb1' })
 orbitdb2 = await OrbitDB({ ipfs: ipfs2, id: 'user2', directory: './orbitdb2' })
 
 const db1 = await orbitdb1.open('my-db')
+
+await db1.add('hello world')
+
+// Opening a db by address will start the synchronization process but only the 
+// database heads will be synchronized.
 const db2 = await orbitdb2.open(db1.address)
+
+// We only have the heads of db1. To replicate all of db1's records, we will 
+// need to iterate over db1's entire record set.
+// We can determine when heads have been synchronized from db1 to db2 by 
+// listening for the "update" event and iterating over the record set.  
+db2.events.on('update', async (entry) => {
+  for await (const record of db2.iterator()) {
+    console.log(record)
+  }
+  // we can use the convenience function db.all() instead of iterating over 
+  // db2's records.
+  // await db2.all()
+})
 ```
+
+To learn more, check out [OrbitDB's sychronization protocol](https://orbitdb.org/api/module-Sync.html) and the [OrbitDB replication documentation](./REPLICATION.md).
 
 ## Building a custom database
 
