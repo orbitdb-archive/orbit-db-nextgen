@@ -12,8 +12,8 @@ build: test
 	cp dist/orbitdb.min.js examples/browser/lib/orbitdb.min.js
 	cp dist/orbitdb.js examples/browser/lib/orbitdb.js
 	cp dist/orbitdb.js.map examples/browser/lib/orbitdb.js.map
-	cp node_modules/ipfs/dist/index.min.js examples/browser/lib/ipfs.min.js
-	cp node_modules/ipfs/dist/index.min.js examples/browser/lib/ipfs.js
+	cp node_modules/helia/dist/index.min.js examples/browser/lib/helia.min.js
+	cp node_modules/helia/dist/index.min.js examples/browser/lib/helia.js
 	@echo "Build success!"
 	@echo "Output: 'dist/', 'examples/browser/'"
 
