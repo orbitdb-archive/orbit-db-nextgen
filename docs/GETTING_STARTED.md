@@ -20,7 +20,7 @@ npm i ipfs-core
 
 To create a database on a single machine, launch an instance of OrbitDB. Once launched, you can open a new database.
 
-Assuming you have a Node.js development environment installed, create a new Node project using the command line:
+Assuming you have a Node.js development environment installed, create a new project using the command line:
 
 ```sh
 mkdir orbitdb-app
@@ -65,7 +65,7 @@ node index.js
 You should see the address of your new database and the records you have added
 to it.
 
-Without a type, OrbitDB defaults to a database type of 'events'. To change the database type, pass a `type` with a valid database type.
+Without a type, OrbitDB defaults to a database type of 'events'. To change the database type, pass the `type` parameter with a valid database type.
 
 Update:
 
@@ -120,7 +120,8 @@ Create a new file called index.js and paste in the following code:
 import { OrbitDB, getAccessController } from 'orbit-db'
 import { create } from 'ipfs-core'
 
-const main = async () => {    
+const main = async () => {
+  // create a random directory to avoid IPFS and OrbitDB conflicts.
   let randDir = (Math.random() + 1).toString(36).substring(2);
 
   const config = {
@@ -131,12 +132,15 @@ const main = async () => {
     }
   }
   
+  // This will create an IPFS repo in ./[randDir]/ipfs.
   const ipfs = await create({ config, repo: './' + randDir + '/ipfs'})
 
+  // This will create all OrbitDB-related databases (keystore, my-db, etc) in 
+  // ./[randDir]/ipfs.
   const orbitdb = await OrbitDB({ ipfs, directory: './' + randDir + '/orbitdb' })
   
   // Get the IPFS AccessController function. We will need it to ensure everyone 
-  // can write to our database.
+  // can write to the database.
   const AccessController = getAccessController('ipfs')
 
   let db
@@ -148,12 +152,12 @@ const main = async () => {
     // db creator. When replicating a database on a remote peer, the remote 
     // peer must also have write access. Here, we are simply allowing anyone 
     // to write to the database. A more robust solution would use the 
-    // OrbitDBAccessController to provide "as-required" access using grant and 
+    // OrbitDBAccessController to provide "fine-grain" access using grant and 
     // revoke. 
     db = await orbitdb.open('my-db', { AccessController: AccessController({ write: ['*']})})
   }
   
-  // copy this output if you want to connect a peer to another.
+  // Copy this output if you want to connect a peer to another.
   console.log('my-db address', db.address)
   
   // Add some records to the db when another peers joins.
