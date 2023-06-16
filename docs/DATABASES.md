@@ -57,6 +57,36 @@ An example of a manifest is given below:
 }
 ```
 
+The manifest is simply an [IPLD data structure](https://ipld.io/docs/) which can be retrived from IPFS just like any other hash:
+
+```js
+import { create } from 'ipfs-core'
+import * as Block from 'multiformats/block'
+import OrbitDB from 'orbit-db'
+
+const ipfs = await create()
+
+// Create the db then close.
+const orbitdb = await OrbitDB({ ipfs })
+const db = await orbitdb.open('my-db')
+await db.close()
+
+// Get the db address.
+const addr = OrbitDBAddress(db.address)
+
+// Extract the hash from the full db path.
+const bytes = await ipfs.get(addr.path)
+
+// Defines how we serialize/hash the data.
+const codec = dagCbor
+const hasher = sha256
+
+// Retrieve the block data, decoding it to human-readable JSON text.
+const { value } = await Block.decode({ bytes, codec, hasher })
+
+console.log(value)
+```
+
 ## Opening a new database
 
 Opening a default event store:
