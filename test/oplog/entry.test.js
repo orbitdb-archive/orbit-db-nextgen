@@ -1,7 +1,9 @@
 import { strictEqual, deepStrictEqual } from 'assert'
 import rmrf from 'rimraf'
 import { copy } from 'fs-extra'
-import { Entry, Identities, KeyStore } from '../../src/index.js'
+import { KeyStore } from '../../src/index.js'
+import { Entry } from '../../src/oplog/index.js'
+import { Identities } from '../../src/identities/index.js'
 import testKeysPath from '../fixtures/test-keys-path.js'
 import { tickClock } from '../../src/oplog/clock.js'
 

@@ -1,6 +1,6 @@
 import assert from 'assert'
-import { Identity, isIdentity, isEqual } from '../../src/identities/index.js'
-import { decodeIdentity } from '../../src/identities/identity.js'
+import { isIdentity } from '../../src/identities/index.js'
+import Identity, { isEqual, decodeIdentity } from '../../src/identities/identity.js'
 
 describe('Identity', function () {
   const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'

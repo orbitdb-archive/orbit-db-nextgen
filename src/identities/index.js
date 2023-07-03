@@ -1,9 +1,7 @@
 export { default as Identities } from './identities.js'
 
 export {
-  default as Identity,
-  isIdentity,
-  isEqual
+  isIdentity
 } from './identity.js'
 
 export {

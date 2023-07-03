@@ -17,6 +17,14 @@
   ],
   "type": "module",
   "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./access-controllers": "./src/access-controllers/index.js",
+    "./databases": "./src/databases/index.js",
+    "./identities": "./src/identities/index.js",
+    "./oplog": "./src/oplog/index.js",
+    "./storage": "./src/storage/index.js"
+  },
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
     "@libp2p/crypto": "^1.0.12",
